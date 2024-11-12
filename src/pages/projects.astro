@@ -13,8 +13,8 @@ const projects = [
     title: "AccessMod 5",
     description: "WHO-certified Digital Public Good for healthcare accessibility analysis. Open-source platform enabling complex health accessibility modeling for public health resource allocation.",
     tags: ["R", "Shiny", "GRASS GIS", "Spatial Analysis"],
-    link: "https://github.com/unep-grid/accessmod",
-    mail: "https://www.accessmod.org"
+    link: "https://github.com/unige-geohealth/accessmod",
+    main: "https://www.accessmod.org"
   }
 ];
 ---
@@ -43,7 +43,7 @@ const projects = [
             Source →
           </a>
           <a 
-            href={project.demo|project.main} 
+            href={project.demo || project.main} 
             class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
           >
             Demo →
