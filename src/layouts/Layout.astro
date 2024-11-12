@@ -1,93 +1,34 @@
 ---
-import '../styles/global.css';
-import TopographicBackground from '../components/TopographicBackground';
+import "../styles/global.css";
+import BaseHead from "../components/BaseHead.astro";
+import Navigation from "../components/Navigation.astro";
+import TopographicBackground from "../components/TopographicBackground";
+import ThemeScript from "../components/ThemeScript.astro";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = "Technical architect and developer focused on geospatial applications" } = Astro.props;
+const {
+  title,
+  description = "Technical architect and developer focused on geospatial applications",
+} = Astro.props;
+
 const currentPath = Astro.url.pathname;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
-    <title>{title}</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    
-    <script is:inline>
-      // Theme handling
-      const theme = (() => {
-        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-          return localStorage.getItem('theme');
-        }
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          return 'dark';
-        }
-        return 'light';
-      })();
-      
-      if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        document.documentElement.classList.add('dark');
-      }
-      
-      window.localStorage.setItem('theme', theme);
-    </script>
-  </head>
-  <body class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-    <nav class="sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 z-50">
-      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="/" class={`font-medium hover:text-zinc-600 dark:hover:text-zinc-300 ${currentPath === '/' ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-400'}`}>
-          fxi
-        </a>
-        <div class="flex items-center gap-6">
-          <a href="/projects" class={`hover:text-zinc-600 dark:hover:text-zinc-300 ${currentPath === '/projects' ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-400'}`}>Projects</a>
-         <a href="/publications" class={`hover:text-zinc-600 dark:hover:text-zinc-300 ${currentPath === '/publications' ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-400'}`}>Publications</a>
-          <a href="/about" class={`hover:text-zinc-600 dark:hover:text-zinc-300 ${currentPath === '/about' ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-400'}`}>About</a>
-          <button 
-            id="themeToggle"
-            class="w-8 h-8 flex items-center justify-center rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            aria-label="Toggle theme"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 hidden dark:block">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 block dark:hidden">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </nav>
-
-    <main class="max-w-2xl mx-auto px-4 py-16">
+  <BaseHead title={title} description={description} />
+  <body class="base-layout">
+    <Navigation currentPath={currentPath} />
+    <main class="main-content">
       <slot />
     </main>
-
-<TopographicBackground client:load />
-    <script>
-      const themeToggle = document.getElementById('themeToggle');
-      
-      themeToggle?.addEventListener('click', () => {
-        const element = document.documentElement;
-        element.classList.toggle('dark');
-        
-        const isDark = element.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      });
-    </script>
+    <TopographicBackground client:load />
+    <Footer />
+    <ThemeScript />
   </body>
 </html>

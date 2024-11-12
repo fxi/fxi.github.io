@@ -53,3 +53,71 @@
     @apply stroke-[0.2];
   }
 }
+
+
+@layer components {
+  /* Layout */
+  .base-layout {
+    @apply bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100;
+  }
+
+  .main-content {
+    @apply max-w-2xl mx-auto px-4 py-16;
+  }
+
+  /* Navigation */
+  .nav-container {
+    @apply sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm 
+           border-b border-zinc-200 dark:border-zinc-800 z-50;
+  }
+
+  .nav-content {
+    @apply max-w-2xl mx-auto px-4 py-3 flex items-center justify-between;
+  }
+
+  .nav-link {
+    @apply hover:text-zinc-600 dark:hover:text-zinc-300;
+  }
+
+  .nav-link-active {
+    @apply text-zinc-900 dark:text-zinc-100;
+  }
+
+  .nav-link-inactive {
+    @apply text-zinc-500 dark:text-zinc-400;
+  }
+
+  .theme-toggle-btn {
+    @apply w-8 h-8 flex items-center justify-center rounded 
+           hover:bg-zinc-100 dark:hover:bg-zinc-800;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .footer-container {
+    @apply mt-auto py-8 border-t border-zinc-200 dark:border-zinc-800;
+  }
+
+  .footer-content {
+    @apply max-w-2xl mx-auto px-4;
+  }
+
+  .footer-text {
+    @apply text-sm text-zinc-500 dark:text-zinc-400 text-center;
+  }
+
+  .footer-separator {
+    @apply mx-2 text-zinc-300 dark:text-zinc-600;
+  }
+
+  .footer-link {
+    @apply hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors;
+  }
+}

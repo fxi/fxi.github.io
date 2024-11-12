@@ -66,10 +66,14 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
     if (!containerRef.current) return;
 
     class TopographicMap {
+      private timeOffset: number;
+      private isMobile: boolean;
+      private lastTime: number;
+
       constructor(container) {
         this.container = container;
-        this.baseResolution = 500;  // Base resolution for reference
-        this.desiredCellSize = 10; // Desired size of each cell in pixels
+        this.baseResolution = 500;
+        this.desiredCellSize = 10;
         this.perlin = new PerlinNoise();
         this.mouseX = -1;
         this.mouseY = -1;
@@ -77,6 +81,11 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
         this.levels = 40;
         this.animationFrameId = null;
         this.pendingUpdate = false;
+        this.timeOffset = 0;
+        this.lastTime = Date.now();
+
+        // Check if device is mobile
+        this.isMobile = window.matchMedia('(max-width: 768px)').matches;
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.style.width = '100%';
@@ -86,23 +95,24 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
         this.updateDimensions();
         this.heightMap = this.generateHeightMap();
         this.bindEvents();
-        this.draw();
+        this.startAnimation();
       }
 
-      updateDimensions() {
-        const rect = this.container.getBoundingClientRect();
-        this.width = rect.width;
-        this.height = rect.height;
+      startAnimation() {
+        const animate = () => {
+          const currentTime = Date.now();
+          const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
+          this.lastTime = currentTime;
 
-        // Calculate resolution based on container size and desired cell size
-        this.resolutionX = Math.ceil(this.width / this.desiredCellSize);
-        this.resolutionY = Math.ceil(this.height / this.desiredCellSize);
+          if (this.isMobile) {
+            this.timeOffset += deltaTime * 0.001; // Adjust speed here
+          }
+          this.requestDraw();
 
-        // Update actual cell size to maintain even distribution
-        this.cellSizeX = this.width / this.resolutionX;
-        this.cellSizeY = this.height / this.resolutionY;
+          this.animationFrameId = requestAnimationFrame(animate);
+        };
 
-        this.svg.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
+        animate();
       }
 
       generateHeightMap() {
@@ -112,7 +122,6 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
         let minVal = Infinity;
         let maxVal = -Infinity;
 
-        // Generate initial height values
         for (let y = 0; y <= this.resolutionY; y++) {
           for (let x = 0; x <= this.resolutionX; x++) {
             let value = 0;
@@ -123,9 +132,13 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
             const scaleX = (x / this.resolutionX) * (this.resolutionX / this.baseResolution);
             const scaleY = (y / this.resolutionY) * (this.resolutionY / this.baseResolution);
 
+            // Add time-based offset for mobile animation
+            const timeOffsetX = this.isMobile ? this.timeOffset : 0;
+            const timeOffsetY = this.isMobile ? this.timeOffset * 0.5 : 0;
+
             for (let i = 0; i < 4; i++) {
-              const nx = scaleX * 4 * frequency;
-              const ny = scaleY * 4 * frequency;
+              const nx = (scaleX + timeOffsetX) * 4 * frequency;
+              const ny = (scaleY + timeOffsetY) * 4 * frequency;
               value += this.perlin.noise(nx, ny) * amplitude;
               amplitude *= 0.5;
               frequency *= 2;
@@ -145,6 +158,21 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
         }
 
         return map;
+      }
+
+      // ... rest of the TopographicMap class methods remain the same ...
+      updateDimensions() {
+        const rect = this.container.getBoundingClientRect();
+        this.width = rect.width;
+        this.height = rect.height;
+
+        this.resolutionX = Math.ceil(this.width / this.desiredCellSize);
+        this.resolutionY = Math.ceil(this.height / this.desiredCellSize);
+
+        this.cellSizeX = this.width / this.resolutionX;
+        this.cellSizeY = this.height / this.resolutionY;
+
+        this.svg.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
       }
 
       getModifiedHeight(x, y) {
@@ -252,6 +280,9 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
 
       draw() {
         this.pendingUpdate = false;
+        if (this.isMobile) {
+          this.heightMap = this.generateHeightMap();
+        }
         this.svg.innerHTML = "";
         const contours = this.generateContours();
 
@@ -265,32 +296,35 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
 
       bindEvents() {
         const updateMousePosition = (e) => {
-          const rect = this.svg.getBoundingClientRect();
-          const scaleX = this.width / rect.width;
-          const scaleY = this.height / rect.height;
+          if (!this.isMobile) {
+            const rect = this.svg.getBoundingClientRect();
+            const scaleX = this.width / rect.width;
+            const scaleY = this.height / rect.height;
 
-          this.mouseX = (e.clientX - rect.left) * scaleX;
-          this.mouseY = (e.clientY - rect.top) * scaleY;
-          this.requestDraw();
+            this.mouseX = (e.clientX - rect.left) * scaleX;
+            this.mouseY = (e.clientY - rect.top) * scaleY;
+            this.requestDraw();
+          }
         };
 
         window.addEventListener('mousemove', updateMousePosition);
         this.svg.addEventListener('touchmove', (e) => {
           e.preventDefault();
-          const touch = e.touches[0];
-          updateMousePosition(touch);
         });
 
         window.addEventListener('mouseleave', () => {
-          this.mouseX = -1;
-          this.mouseY = -1;
-          this.requestDraw();
+          if (!this.isMobile) {
+            this.mouseX = -1;
+            this.mouseY = -1;
+            this.requestDraw();
+          }
         });
 
         let resizeTimeout;
         window.addEventListener('resize', () => {
           clearTimeout(resizeTimeout);
           resizeTimeout = setTimeout(() => {
+            this.isMobile = window.matchMedia('(max-width: 768px)').matches;
             this.updateDimensions();
             this.heightMap = this.generateHeightMap();
             this.requestDraw();
@@ -303,7 +337,6 @@ const TopographicBackground: React.FC<Props> = ({ className = '' }) => {
           cancelAnimationFrame(this.animationFrameId);
         }
       }
-
     }
 
     mapInstanceRef.current = new TopographicMap(containerRef.current);
