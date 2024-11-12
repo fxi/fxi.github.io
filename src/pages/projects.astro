@@ -1,0 +1,55 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const projects = [
+  {
+    title: "MapX",
+    description: "UN-endorsed platform transforming geospatial data visualization for global sustainability. Architected and scaled from prototype to production, supporting thousands of users across UN member states.",
+    tags: ["Node.js", "PostgreSQL", "Redis", "Microservices"],
+    link: "https://github.com/unep-grid/mapx",
+    demo: "https://app.mapx.org"
+  },
+  {
+    title: "AccessMod 5",
+    description: "WHO-certified Digital Public Good for healthcare accessibility analysis. Open-source platform enabling complex health accessibility modeling for public health resource allocation.",
+    tags: ["R", "Shiny", "GRASS GIS", "Spatial Analysis"],
+    link: "https://github.com/unep-grid/accessmod",
+    mail: "https://www.accessmod.org"
+  }
+];
+---
+
+<Layout title="Projects - Frédéric Moser">
+  <h1>Projects</h1>
+  <div class="space-y-8">
+    {projects.map(project => (
+      <article class="card">
+        <h2 class="mb-2">{project.title}</h2>
+        <p class="text-zinc-600 dark:text-zinc-400">{project.description}</p>
+        
+        <div class="mt-4 flex flex-wrap gap-2">
+          {project.tags.map(tag => (
+            <span class="px-2 py-1 text-sm rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+              {tag}
+            </span>
+          ))}
+        </div>
+        
+        <div class="mt-4 flex gap-4">
+          <a 
+            href={project.link} 
+            class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            Source →
+          </a>
+          <a 
+            href={project.demo|project.main} 
+            class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            Demo →
+          </a>
+        </div>
+      </article>
+    ))}
+  </div>
+</Layout>

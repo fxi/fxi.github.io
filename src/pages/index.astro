@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Frédéric Moser - Portfolio">
+  <section class="mb-16">
+    <h1>Frédéric Moser</h1>
+    <p class="text-xl text-zinc-600 dark:text-zinc-400">
+      Technical Architect and Developer focused on geospatial applications and environmental solutions.
+    </p>
+    <div class="flex gap-4 mt-4">
+      <a href="mailto:f@fxi.io" class="text-sm hover:text-zinc-600 dark:hover:text-zinc-300">f@fxi.io</a>
+      <a href="https://github.com/fxi" class="text-sm hover:text-zinc-600 dark:hover:text-zinc-300">github.com/fxi</a>
+      <a href="http://fxi.io" class="text-sm hover:text-zinc-600 dark:hover:text-zinc-300">fxi.io</a>
+    </div>
+  </section>
+
+  <section class="mb-16">
+    <h2>Projects</h2>
+    <div class="space-y-6">
+      <article class="card">
+        <h3>MapX</h3>
+        <p class="text-zinc-600 dark:text-zinc-400">
+          UN-endorsed platform for geospatial data visualization supporting global sustainability and governance. Built with Node.js, PostgreSQL, and Redis.
+        </p>
+        <div class="mt-4">
+          <a href="https://app.mapx.org" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+            Visit MapX →
+          </a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>AccessMod 5</h3>
+        <p class="text-zinc-600 dark:text-zinc-400">
+          WHO-certified Digital Public Good for healthcare accessibility analysis. Open-source platform enabling complex health accessibility modeling for resource allocation.
+        </p>
+        <div class="mt-4">
+          <a href="https://www.accessmod.org" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+            Visit AccessMod →
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="mb-16">
+    <h2>Technical Skills</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-medium mb-3">Core Technologies</h3>
+        <ul class="space-y-2 text-zinc-600 dark:text-zinc-400">
+          <li>JavaScript / Node.js</li>
+          <li>PostgreSQL / PostGIS</li>
+          <li>Docker / Microservices</li>
+          <li>R / Shiny</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-medium mb-3">GIS & Spatial Analysis</h3>
+        <ul class="space-y-2 text-zinc-600 dark:text-zinc-400">
+          <li>GRASS GIS</li>
+          <li>QGIS</li>
+          <li>Mapbox GL</li>
+          <li>GDAL</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Layout>

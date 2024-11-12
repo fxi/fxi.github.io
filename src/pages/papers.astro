@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const papers = [
+  {
+    title: "Paper Title",
+    journal: "Journal Name",
+    year: 2024,
+    abstract: "Detailed abstract of the paper...",
+    pdf: "/papers/paper.pdf",
+    code: "https://github.com/yourusername/paper-code",
+    doi: "10.1234/example.doi"
+  },
+  // More papers...
+];
+---
+
+<Layout title="Papers - Your Name">
+  <h1>Research Papers</h1>
+  <div class="space-y-8">
+    {papers.map(paper => (
+      <article class="rounded-lg border border-zinc-200 dark:border-zinc-800 p-6">
+        <h2 class="mb-2">{paper.title}</h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+          Published in {paper.journal} ({paper.year})
+        </p>
+        <p class="text-zinc-600 dark:text-zinc-400">{paper.abstract}</p>
+        
+        <div class="mt-4 flex gap-4">
+          <a 
+            href={paper.pdf} 
+            class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            PDF →
+          </a>
+          <a 
+            href={paper.code} 
+            class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            Code →
+          </a>
+          <a 
+            href={`https://doi.org/${paper.doi}`} 
+            class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            DOI →
+          </a>
+        </div>
+      </article>
+    ))}
+  </div>
+</Layout>

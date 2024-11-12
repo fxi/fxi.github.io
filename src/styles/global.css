@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+    @apply antialiased;
+    @apply selection:bg-zinc-200 dark:selection:bg-zinc-800;
+  }
+
+  /* Typography scale */
+  h1 {
+    @apply text-3xl font-medium tracking-tight mb-8;
+  }
+
+  h2 {
+    @apply text-xl font-medium tracking-tight mb-4;
+  }
+
+  h3 {
+    @apply text-lg font-medium mb-2;
+  }
+
+  p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  code {
+    @apply font-mono text-sm;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-zinc-200 dark:border-zinc-800 
+           bg-white/80 dark:bg-zinc-900/80 
+           backdrop-blur-sm
+           p-6;
+  }
+}
+
+@layer components {
+  .contour {
+    @apply stroke-zinc-400 dark:stroke-purple-400;
+  }
+
+  .major-contour {
+    @apply stroke-[0.4];
+  }
+
+  .minor-contour {
+    @apply stroke-[0.2];
+  }
+}
