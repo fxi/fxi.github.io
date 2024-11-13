@@ -52,8 +52,11 @@
   .minor-contour {
     @apply stroke-[0.2];
   }
-}
 
+  .contour-label {
+    @apply text-xs fill-zinc-500 dark:fill-purple-300 font-light select-none opacity-70;
+  }
+}
 
 @layer components {
   /* Layout */
