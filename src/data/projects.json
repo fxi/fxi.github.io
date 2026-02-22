@@ -1,0 +1,340 @@
+[
+  {
+    "name": "soundtrip",
+    "description": "Toy music visualizer",
+    "tags": [
+      "canvas",
+      "audio",
+      "visualization"
+    ],
+    "year_init": 2018,
+    "year_last": 2026,
+    "repo": "https://github.com/fxi/soundtrip",
+    "url": "https://fxi.io/soundtrip/",
+    "featured": false
+  },
+  {
+    "name": "zartigl",
+    "description": "MapLibre GL JS plugin for animated particle flow from Zarr ocean current data",
+    "tags": [
+      "maplibre",
+      "webgl",
+      "glsl",
+      "zarr",
+      "oceanography"
+    ],
+    "year_init": 2026,
+    "year_last": 2026,
+    "url": "https://fxi.io/zartigl/",
+    "featured": false
+  },
+  {
+    "name": "framepusher",
+    "description": "Interactive frame-pushing animation game",
+    "tags": [
+      "canvas",
+      "animation",
+      "game"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/framepusher/",
+    "featured": false
+  },
+  {
+    "name": "geodrink",
+    "description": "Interactive map application for finding water points and fountains",
+    "tags": [
+      "map",
+      "maplibre",
+      "react",
+      "typescript"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/geodrink/",
+    "featured": false
+  },
+  {
+    "name": "geopoio",
+    "description": "Discover Points of Interest along your GPX routes and around your location",
+    "tags": [
+      "map",
+      "svelte",
+      "fullstack",
+      "gpx"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/geopoio/",
+    "featured": false
+  },
+  {
+    "name": "ibex",
+    "description": "Opinionated gravel routing",
+    "tags": [
+      "map",
+      "routing",
+      "gravel",
+      "cycling"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/ibex/",
+    "featured": false
+  },
+  {
+    "name": "minanimap",
+    "description": "Mapbox GL animated map step-by-step viewer",
+    "tags": [
+      "map",
+      "mapbox",
+      "animation"
+    ],
+    "year_init": 2021,
+    "year_last": 2025,
+    "url": "https://fxi.io/minanimap/",
+    "featured": false
+  },
+  {
+    "name": "moon",
+    "description": "Solar system simulator",
+    "tags": [
+      "3d",
+      "threejs",
+      "astronomy",
+      "simulation"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/moon/",
+    "featured": false
+  },
+  {
+    "name": "nanote",
+    "description": "KISS note-taking app",
+    "tags": [
+      "pwa",
+      "react",
+      "typescript",
+      "tauri",
+      "notes"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/nanote/",
+    "featured": false
+  },
+  {
+    "name": "trailcast",
+    "description": "Interactive GPX track visualization with weather forecasting",
+    "tags": [
+      "map",
+      "gpx",
+      "weather",
+      "react",
+      "typescript"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/trailcast/",
+    "featured": false
+  },
+  {
+    "name": "traveltime",
+    "description": "Client-side travel time analysis with Dijkstra algorithm",
+    "tags": [
+      "map",
+      "mapbox",
+      "gis",
+      "analysis"
+    ],
+    "year_init": 2018,
+    "year_last": 2025,
+    "url": "https://fxi.io/traveltime/",
+    "featured": false
+  },
+  {
+    "name": "x",
+    "description": "Encryption/decryption tool for puzzles",
+    "tags": [
+      "crypto",
+      "puzzle",
+      "react",
+      "typescript"
+    ],
+    "year_init": 2025,
+    "year_last": 2025,
+    "url": "https://fxi.io/x/",
+    "featured": false
+  },
+  {
+    "name": "akira",
+    "description": "Photoreal map experiment for Mapbox GL",
+    "tags": [
+      "map",
+      "mapbox",
+      "3d"
+    ],
+    "year_init": 2023,
+    "year_last": 2023,
+    "url": "https://fxi.io/akira/",
+    "featured": false
+  },
+  {
+    "name": "geotickgen",
+    "description": "Lat/Long ticks on Mapbox GL / MapLibre maps",
+    "tags": [
+      "map",
+      "maplibre",
+      "library"
+    ],
+    "year_init": 2023,
+    "year_last": 2023,
+    "featured": false
+  },
+  {
+    "name": "labshad",
+    "description": "Labyrinth shader / Game of Life experiment",
+    "tags": [
+      "shader",
+      "webgl",
+      "creative-coding"
+    ],
+    "year_init": 2021,
+    "year_last": 2023,
+    "url": "https://fxi.io/labshad/",
+    "featured": false
+  },
+  {
+    "name": "zoomoot",
+    "description": "Tool to create zoom out animation from outpaintings / uncrop images",
+    "tags": [
+      "canvas",
+      "animation",
+      "image"
+    ],
+    "year_init": 2022,
+    "year_last": 2022,
+    "url": "https://fxi.io/zoomoot/",
+    "featured": false
+  },
+  {
+    "name": "binary_utf",
+    "description": "Binary to UTF-16 character explorer",
+    "tags": [
+      "tool",
+      "unicode",
+      "binary"
+    ],
+    "year_init": 2021,
+    "year_last": 2021,
+    "url": "https://fxi.io/binary_utf/",
+    "featured": false
+  },
+  {
+    "name": "funkeyboard",
+    "description": "A deliberately overcomplicated keyboard",
+    "tags": [
+      "game",
+      "keyboard",
+      "creative-coding"
+    ],
+    "year_init": 2021,
+    "year_last": 2021,
+    "url": "https://fxi.io/funkeyboard/",
+    "featured": false
+  },
+  {
+    "name": "galaxbox",
+    "description": "Toy Mapbox projection experiment",
+    "tags": [
+      "map",
+      "mapbox",
+      "visualization"
+    ],
+    "year_init": 2021,
+    "year_last": 2021,
+    "url": "https://fxi.io/galaxbox/",
+    "featured": false
+  },
+  {
+    "name": "tixy3d",
+    "description": "3D tixy variant using Mapbox GL",
+    "tags": [
+      "map",
+      "mapbox",
+      "creative-coding",
+      "3d"
+    ],
+    "year_init": 2020,
+    "year_last": 2020,
+    "url": "https://fxi.io/tixy3d/",
+    "featured": false
+  },
+  {
+    "name": "tixy_cam",
+    "description": "Webcam-based tixy variant",
+    "tags": [
+      "canvas",
+      "webcam",
+      "creative-coding"
+    ],
+    "year_init": 2020,
+    "year_last": 2020,
+    "url": "https://fxi.io/tixy_cam/",
+    "featured": false
+  },
+  {
+    "name": "tixyac",
+    "description": "Audio-canvas tixy variant",
+    "tags": [
+      "canvas",
+      "audio",
+      "creative-coding"
+    ],
+    "year_init": 2020,
+    "year_last": 2020,
+    "url": "https://fxi.io/tixyac/",
+    "featured": false
+  },
+  {
+    "name": "tv_handsome",
+    "description": "Webcam ASCII art canvas experiment",
+    "tags": [
+      "canvas",
+      "webcam",
+      "creative-coding"
+    ],
+    "year_init": 2020,
+    "year_last": 2020,
+    "url": "https://fxi.io/tv_handsome/",
+    "featured": false
+  },
+  {
+    "name": "blobs",
+    "description": "Audio-visual blob experiment with WebGL and Tone.js",
+    "tags": [
+      "webgl",
+      "audio",
+      "creative-coding"
+    ],
+    "year_init": 2019,
+    "year_last": 2019,
+    "url": "https://fxi.io/blobs/",
+    "featured": false
+  },
+  {
+    "name": "binauralgen",
+    "description": "Binaural beats generator toy",
+    "tags": [
+      "audio",
+      "tone",
+      "tool"
+    ],
+    "year_init": 2018,
+    "year_last": 2018,
+    "url": "https://fxi.io/binauralgen/",
+    "featured": false
+  }
+]

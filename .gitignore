@@ -2,6 +2,12 @@
 dist/
 .output/
 
+
+# sub projects
+projects 
+# archives / trash 
+_archives
+
 # dependencies
 node_modules/
 
@@ -31,6 +37,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.claude
 
 # Temporary files
 *.log

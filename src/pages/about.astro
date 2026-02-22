@@ -2,73 +2,75 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="About - Frédéric Moser">
+<Layout title="About — Fred Moser">
   <h1>About</h1>
-  
-  <section class="mb-12">
-    <h2 class="mb-4">Career</h2>
-    <div class="space-y-6">
-      <div>
-        <h3 class="text-lg font-medium">Developer & Technical Architect</h3>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-2">University of Geneva (80%) | 2015 – present</p>
-        <p class="text-zinc-600 dark:text-zinc-400">
-          Lead developer of MapX, a UN-endorsed platform for geospatial data visualization. Focused on scalable architecture, microservices, and advanced features for global sustainability initiatives.
-        </p>
-      </div>
-      
-      <div>
-        <h3 class="text-lg font-medium">Developer & Technical Architect</h3>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-2">University of Geneva (20%) | 2014 – present</p>
-        <p class="text-zinc-600 dark:text-zinc-400">
-          Lead developer of AccessMod 5, a WHO-certified Digital Public Good for healthcare accessibility analysis.
-        </p>
-      </div>
-    </div>
-  </section>
 
-  <section class="mb-12">
-    <h2 class="mb-4">Education</h2>
-    <div class="space-y-4">
-      <div>
-        <h3 class="text-lg font-medium">Master of Environmental Sciences</h3>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400">University of Geneva | 2010 – 2013</p>
-      </div>
-      <div>
-        <h3 class="text-lg font-medium">Bachelor of Arts in Geography</h3>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400">University of Geneva | 2007 – 2010</p>
-      </div>
-    </div>
-  </section>
+  <p>
+    Full-stack developer and technical architect based in Geneva.
+    I build geospatial platforms for environmental research and global health,
+    working at the intersection of maps, data, and open infrastructure.
+  </p>
+  <p>
+    Outside work: gravel bikes, mountain trails, and a camera.
+  </p>
 
-  <section>
-    <h2 class="mb-4">Technical Expertise</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div>
-        <h3 class="text-lg font-medium mb-3">Programming</h3>
-        <ul class="space-y-2 text-zinc-600 dark:text-zinc-400">
-          <li>JavaScript</li>
-          <li>R</li>
-          <li>HTML5/CSS</li>
-          <li>Shell Scripts</li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-medium mb-3">Databases</h3>
-        <ul class="space-y-2 text-zinc-600 dark:text-zinc-400">
-          <li>PostgreSQL</li>
-          <li>PostGIS</li>
-          <li>SQLite</li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-medium mb-3">Tools & Systems</h3>
-        <ul class="space-y-2 text-zinc-600 dark:text-zinc-400">
-          <li>Docker</li>
-          <li>Git</li>
-          <li>Vim</li>
-          <li>Alpine Linux</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  <h2>Work</h2>
+  <ul class="timeline">
+    <li class="timeline-item">
+      <span class="timeline-role">Developer & Technical Architect — MapX</span>
+      <span class="timeline-org">University of Geneva · 2015 – present</span>
+      <span class="timeline-desc">
+        Lead developer of MapX, a UN-endorsed open platform for geospatial data
+        visualization supporting global sustainability and environmental governance.
+        Node.js, PostgreSQL/PostGIS, Redis, Docker.
+      </span>
+    </li>
+    <li class="timeline-item">
+      <span class="timeline-role">Developer & Technical Architect — AccessMod</span>
+      <span class="timeline-org">University of Geneva · 2014 – present</span>
+      <span class="timeline-desc">
+        Lead developer of AccessMod 5, a WHO-certified Digital Public Good for
+        modeling healthcare geographic accessibility. R, Shiny, GRASS GIS.
+      </span>
+    </li>
+  </ul>
+
+  <h2>Education</h2>
+  <ul class="timeline">
+    <li class="timeline-item">
+      <span class="timeline-role">Master of Environmental Sciences</span>
+      <span class="timeline-org">University of Geneva · 2010 – 2013</span>
+    </li>
+    <li class="timeline-item">
+      <span class="timeline-role">Bachelor of Arts in Geography</span>
+      <span class="timeline-org">University of Geneva · 2007 – 2010</span>
+    </li>
+  </ul>
+
+  <h2>Stack</h2>
+  <ul class="timeline">
+    <li class="timeline-item">
+      <span class="timeline-role">Languages</span>
+      <span class="timeline-desc">JavaScript / Node.js · R · HTML / CSS · Shell</span>
+    </li>
+    <li class="timeline-item">
+      <span class="timeline-role">Data</span>
+      <span class="timeline-desc">PostgreSQL · PostGIS · SQLite · GDAL</span>
+    </li>
+    <li class="timeline-item">
+      <span class="timeline-role">Tools</span>
+      <span class="timeline-desc">Docker · Git · GRASS GIS · QGIS · Mapbox GL · Vim</span>
+    </li>
+  </ul>
+
+  <h2>Contact</h2>
+  <ul class="timeline">
+    <li class="timeline-item">
+      <span class="timeline-role">
+        <a href="mailto:f@fxi.io">f@fxi.io</a>
+        &ensp;·&ensp;
+        <a href="https://github.com/fxi" target="_blank" rel="noopener">github.com/fxi</a>
+      </span>
+    </li>
+  </ul>
 </Layout>

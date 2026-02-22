@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { readdirSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const postsDir = resolve('public/posts');
+
+const posts = existsSync(postsDir)
+  ? readdirSync(postsDir, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => {
+        // Slug: "2026_02_21" → date label "2026-02-21"
+        const slug = d.name;
+        const label = slug.replace(/_/g, '-');
+        return { slug, label };
+      })
+      .sort((a, b) => b.slug.localeCompare(a.slug))
+  : [];
+---
+
+<Layout title="Posts — Fred Moser">
+  <h1>Posts</h1>
+
+  {posts.length === 0 ? (
+    <p>No posts yet.</p>
+  ) : (
+    <ul class="post-list">
+      {posts.map(({ slug, label }) => (
+        <li class="post-item">
+          <span class="post-date">{label}</span>
+          <a href={`/posts/${slug}/`} class="post-title">{slug}</a>
+        </li>
+      ))}
+    </ul>
+  )}
+</Layout>
