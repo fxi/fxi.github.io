@@ -8,16 +8,20 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "sync": "node sync_projects.js"
+    "sync": "node sync_projects.js",
+    "photos:sync": "node --env-file=.env scripts/photos-sync.js"
   },
   "dependencies": {
     "astro": "^4.16.10"
   },
   "devDependencies": {
     "@astrojs/react": "^3.6.2",
+    "@aws-sdk/client-s3": "^3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "exifr": "^7.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sharp": "^0.33"
   }
 }

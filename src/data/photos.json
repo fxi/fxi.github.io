@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ffba78721be4",
+    "filename": "IMG_1560.jpeg",
+    "album": "2025-01-26",
+    "date_taken": "2025-01-26T12:51:19",
+    "date_uploaded": "2026-02-23T20:38:22.487Z",
+    "width": 3244,
+    "height": 4326,
+    "thumb_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/ffba78721be4_600.jpg",
+    "preview_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/ffba78721be4_1800.jpg",
+    "exif": {
+      "camera": "Apple iPhone 16",
+      "lens": "iPhone 16 back dual wide camera 5.96mm f/1.6",
+      "focal_length": "6mm",
+      "focal_length_35mm": "26mm",
+      "aperture": "f/1.6",
+      "shutter_speed": "1/6993s",
+      "iso": 50,
+      "exposure_compensation": "0 EV"
+    }
+  },
+  {
+    "id": "ca17fb36ed0a",
+    "filename": "IMG_1558.jpeg",
+    "album": "2025-01-26",
+    "date_taken": "2025-01-26T12:41:24",
+    "date_uploaded": "2026-02-23T20:38:21.920Z",
+    "width": 3649,
+    "height": 4865,
+    "thumb_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/ca17fb36ed0a_600.jpg",
+    "preview_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/ca17fb36ed0a_1800.jpg",
+    "exif": {
+      "camera": "Apple iPhone 16",
+      "lens": "iPhone 16 back dual wide camera 5.96mm f/1.6",
+      "focal_length": "6mm",
+      "focal_length_35mm": "26mm",
+      "aperture": "f/1.6",
+      "shutter_speed": "1/10101s",
+      "iso": 50,
+      "exposure_compensation": "0 EV"
+    }
+  },
+  {
+    "id": "203ae9391167",
+    "filename": "IMG_1556.jpeg",
+    "album": "2025-01-26",
+    "date_taken": "2025-01-26T12:41:13",
+    "date_uploaded": "2026-02-23T20:38:21.238Z",
+    "width": 3208,
+    "height": 4278,
+    "thumb_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/203ae9391167_600.jpg",
+    "preview_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/203ae9391167_1800.jpg",
+    "exif": {
+      "camera": "Apple iPhone 16",
+      "lens": "iPhone 16 back dual wide camera 5.96mm f/1.6",
+      "focal_length": "6mm",
+      "focal_length_35mm": "26mm",
+      "aperture": "f/1.6",
+      "shutter_speed": "1/10101s",
+      "iso": 50,
+      "exposure_compensation": "0 EV"
+    }
+  },
+  {
+    "id": "9b6c487c5632",
+    "filename": "IMG_1555.jpeg",
+    "album": "2025-01-26",
+    "date_taken": "2025-01-26T12:04:32",
+    "date_uploaded": "2026-02-23T20:38:20.504Z",
+    "width": 4284,
+    "height": 5712,
+    "thumb_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/9b6c487c5632_600.jpg",
+    "preview_url": "https://sos-ch-gva-2.exo.io/fxi-io-media/photos/2025-01-26/9b6c487c5632_1800.jpg",
+    "exif": {
+      "camera": "Apple iPhone 16",
+      "lens": "iPhone 16 back dual wide camera 5.96mm f/1.6",
+      "focal_length": "6mm",
+      "focal_length_35mm": "26mm",
+      "aperture": "f/1.6",
+      "shutter_speed": "1/4329s",
+      "iso": 64,
+      "exposure_compensation": "0 EV"
+    }
+  }
+]

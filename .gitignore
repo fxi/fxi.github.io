@@ -64,3 +64,6 @@ cypress/screenshots/
 
 # Vercel
 .vercel
+
+# Local photo originals (processed + uploaded via photos:sync)
+public/photos/

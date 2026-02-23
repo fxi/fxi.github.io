@@ -1,3 +1,5 @@
 # .claudeignore
 !projects/
 !projects/**
+
+.env

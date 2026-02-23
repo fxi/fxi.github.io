@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PhotoGallery from '../components/PhotoGallery.tsx';
+import photos from '../data/photos.json';
 ---
 
 <Layout title="Photos — Fred Moser">
   <h1>Photos</h1>
-  <p class="placeholder-note">Gallery coming soon — waiting on S3 bucket access.</p>
+  <PhotoGallery photos={photos} client:load />
 </Layout>
