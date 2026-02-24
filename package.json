@@ -8,8 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "sync": "node sync_projects.js",
-    "photos:sync": "node --env-file=.env scripts/photos-sync.js"
+    "sync": "node scripts/sync_projects.js",
+    "photos:sync": "node  --env-file=.env scripts/photos-sync.js"
   },
   "dependencies": {
     "astro": "^4.16.10"
