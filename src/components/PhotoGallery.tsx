@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PhotoLightbox from './PhotoLightbox';
 
 export interface Photo {
@@ -55,7 +55,11 @@ function checkerboard(photos: Photo[]): Photo[] {
 
 export default function PhotoGallery({ photos }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const sorted = useMemo(() => checkerboard(photos), [photos]);
+  // Start with the original order so server and client HTML match (no
+  // hydration mismatch). Shuffle in an effect — runs only on the client,
+  // after hydration is complete.
+  const [sorted, setSorted] = useState<Photo[]>(photos);
+  useEffect(() => { setSorted(checkerboard(photos)); }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

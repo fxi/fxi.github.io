@@ -577,96 +577,183 @@ body.home {
 .lightbox-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.95);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.lightbox-dialog {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 90vw;
-  max-height: 90vh;
   outline: none;
-}
-
-.lightbox-image-area {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  min-height: 0;
+  /* Block underlying scroll on mobile */
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .lightbox-img {
-  max-width: 90vw;
-  max-height: 85vh;
+  max-width: 100vw;
+  max-height: 100vh;
   object-fit: contain;
   display: block;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.lightbox-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+/* ── desktop nav zones (fine pointer = mouse only) ── */
+
+.lightbox-zone {
+  display: none;
 }
+
+@media (pointer: fine) {
+  .lightbox-zone {
+    display: flex;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 33%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease;
+    z-index: 1;
+    padding: 0 2rem;
+  }
+
+  .lightbox-zone--prev {
+    left: 0;
+    justify-content: flex-start;
+  }
+
+  .lightbox-zone--next {
+    right: 0;
+    justify-content: flex-end;
+  }
+
+  .lightbox-zone--prev:hover {
+    opacity: 1;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.2), transparent);
+  }
+
+  .lightbox-zone--next:hover {
+    opacity: 1;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
+  }
+
+  .lightbox-zone-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .lightbox-zone-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+/* ── counter (top center) ── */
 
 .lightbox-counter {
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.5);
-  min-width: 4rem;
-  text-align: center;
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
 }
 
-.lightbox-btn {
-  display: inline-flex;
+/* ── close button (desktop / fine pointer only) ── */
+
+.lightbox-close {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .lightbox-close {
+    display: flex;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.85rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    z-index: 2;
+  }
+
+  .lightbox-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ── camera / info button (bottom right) ── */
+
+.lightbox-info-btn {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.45);
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 1rem;
-  transition: color 0.15s ease;
-  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+  z-index: 2;
 }
 
-.lightbox-btn:hover:not(:disabled) {
+.lightbox-info-btn svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.lightbox-info-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.lightbox-btn:disabled {
-  opacity: 0.2;
-  cursor: default;
-}
-
-.lightbox-btn--active {
+.lightbox-info-btn--active {
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
-.lightbox-btn:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.6);
-  outline-offset: 2px;
-}
+/* ── EXIF panel (floats above info button) ── */
 
 .lightbox-exif {
-  margin-top: 0.75rem;
+  position: absolute;
+  bottom: 5.5rem;
+  right: 1.5rem;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  line-height: 1.6;
   color: rgba(255, 255, 255, 0.75);
-  max-width: 90vw;
-  width: 360px;
+  width: 260px;
+  max-width: calc(100vw - 3rem);
+  z-index: 2;
 }
 
 .exif-row {
@@ -688,7 +775,7 @@ body.home {
 
 @media (max-width: 480px) {
   .lightbox-exif {
-    width: 100%;
+    width: calc(100vw - 3rem);
   }
 
   .exif-row span:first-child {
