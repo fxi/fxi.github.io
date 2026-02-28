@@ -1,20 +1,21 @@
 /**
  * photos-sync.js
  *
- * Processes new photos from public/photos/, uploads resized versions to
- * Exoscale SOS (S3-compatible), and updates src/data/photos.json.
+ * Processes new photos from public/photos/ (flat folder), uploads resized
+ * versions to Exoscale SOS (S3-compatible), and updates src/data/photos.json.
  *
  * Usage:
- *   EXOSCALE_ENDPOINT_STORAGE=https://sos-ch-gva-2.exo.io \
- *   EXOSCALE_S3_BUCKET=fxi-io-media \
- *   EXOSCALE_API_KEY=... \
- *   EXOSCALE_API_SECRET=... \
+ *   EXOSCALE_FXI_ENDPOINT_STORAGE=https://sos-ch-gva-2.exo.io \
+ *   EXOSCALE_FXI_S3_REGION=ch-gva-2 \
+ *   EXOSCALE_FXI_S3_BUCKET=fxi-io-media \
+ *   EXOSCALE_FXI_API_KEY=... \
+ *   EXOSCALE_FXI_API_SECRET=... \
  *   node scripts/photos-sync.js
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, extname, basename, relative, dirname } from 'node:path';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { join, extname, basename, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import exifr from 'exifr';
@@ -27,34 +28,26 @@ const CATALOGUE_PATH = join(ROOT, 'src', 'data', 'photos.json');
 
 const SUPPORTED_EXTS = new Set(['.jpg', '.jpeg', '.png', '.heic']);
 
-const MONTH_NAMES = {
-  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
-};
-
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function sha256File(buf) {
   return createHash('sha256').update(buf).digest('hex').slice(0, 12);
 }
 
-/** Parse a folder name to an ISO date string (YYYY-MM-DD). */
-function parseFolderDate(name) {
-  // Already ISO: 2025-01-26
-  const m1 = name.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m1) return `${m1[1]}-${m1[2]}-${m1[3]}`;
-
-  // Underscored with month name: 2025_january_26
-  const m2 = name.toLowerCase().match(/^(\d{4})_([a-z]+)_(\d{1,2})/);
-  if (m2) {
-    const month = MONTH_NAMES[m2[2]];
-    if (month) {
-      return `${m2[1]}-${String(month).padStart(2, '0')}-${String(m2[3]).padStart(2, '0')}`;
-    }
-  }
-
-  // Fallback: return the folder name as-is
-  return name;
+/** Convert RGB (0-255) to CIE L*a*b*. Returns [L, a, b]. */
+function rgbToLab(r, g, b) {
+  let rN = r / 255, gN = g / 255, bN = b / 255;
+  rN = rN > 0.04045 ? Math.pow((rN + 0.055) / 1.055, 2.4) : rN / 12.92;
+  gN = gN > 0.04045 ? Math.pow((gN + 0.055) / 1.055, 2.4) : gN / 12.92;
+  bN = bN > 0.04045 ? Math.pow((bN + 0.055) / 1.055, 2.4) : bN / 12.92;
+  const x = (rN * 0.4124 + gN * 0.3576 + bN * 0.1805) * 100;
+  const y = (rN * 0.2126 + gN * 0.7152 + bN * 0.0722) * 100;
+  const z = (rN * 0.0193 + gN * 0.1192 + bN * 0.9505) * 100;
+  let xR = x / 95.047, yR = y / 100.0, zR = z / 108.883;
+  xR = xR > 0.008856 ? Math.pow(xR, 1 / 3) : 7.787 * xR + 16 / 116;
+  yR = yR > 0.008856 ? Math.pow(yR, 1 / 3) : 7.787 * yR + 16 / 116;
+  zR = zR > 0.008856 ? Math.pow(zR, 1 / 3) : 7.787 * zR + 16 / 116;
+  return [116 * yR - 16, 500 * (xR - yR), 200 * (yR - zR)];
 }
 
 function formatShutter(val) {
@@ -95,15 +88,15 @@ function walkImages(dir) {
 
 // ── S3 client ─────────────────────────────────────────────────────────────────
 
-const endpoint = process.env.EXOSCALE_ENDPOINT_STORAGE;
-const region = process.env.EXOSCALE_S3_REGION;
-const bucket = process.env.EXOSCALE_S3_BUCKET;
-const accessKeyId = process.env.EXOSCALE_API_KEY;
-const secretAccessKey = process.env.EXOSCALE_API_SECRET;
+const endpoint = process.env.EXOSCALE_FXI_ENDPOINT_STORAGE;
+const region = process.env.EXOSCALE_FXI_S3_REGION;
+const bucket = process.env.EXOSCALE_FXI_S3_BUCKET;
+const accessKeyId = process.env.EXOSCALE_FXI_API_KEY;
+const secretAccessKey = process.env.EXOSCALE_FXI_API_SECRET;
 
 if (!endpoint || !region || !bucket || !accessKeyId || !secretAccessKey) {
   console.error(
-    'Missing env vars. Set EXOSCALE_ENDPOINT_STORAGE, EXOSCALE_S3_REGION, EXOSCALE_S3_BUCKET, EXOSCALE_API_KEY, EXOSCALE_API_SECRET.'
+    'Missing env vars. Set EXOSCALE_FXI_ENDPOINT_STORAGE, EXOSCALE_FXI_S3_REGION, EXOSCALE_FXI_S3_BUCKET, EXOSCALE_FXI_API_KEY, EXOSCALE_FXI_API_SECRET.'
   );
   process.exit(1);
 }
@@ -115,7 +108,9 @@ const s3 = new S3Client({
   forcePathStyle: false,
 });
 
-const publicBase = `${endpoint.replace(/\/$/, '')}/${bucket}`;
+// Virtual-hosted-style public URL: https://{bucket}.sos-ch-gva-2.exo.io
+const { protocol, host } = new URL(endpoint);
+const publicBase = `${protocol}//${bucket}.${host}`;
 
 async function uploadBuffer(key, buffer, contentType = 'image/jpeg') {
   await s3.send(
@@ -144,11 +139,15 @@ async function main() {
   }
   const knownIds = new Set(catalogue.map((e) => e.id));
 
+  const nArg = process.argv.indexOf('--n');
+  const limit = nArg !== -1 ? parseInt(process.argv[nArg + 1], 10) : Infinity;
+
   const images = walkImages(PHOTOS_DIR);
-  console.log(`Found ${images.length} image(s) in ${PHOTOS_DIR}`);
+  console.log(`Found ${images.length} image(s) in ${PHOTOS_DIR}${isFinite(limit) ? ` (limiting to ${limit})` : ''}`);
 
   let added = 0;
   let skipped = 0;
+  let attempted = 0;
 
   for (const filePath of images) {
     const filename = basename(filePath);
@@ -159,6 +158,8 @@ async function main() {
       skipped++;
       continue;
     }
+    if (attempted >= limit) break;
+    attempted++;
 
     console.log(`Processing ${filename} (${id})…`);
 
@@ -174,19 +175,11 @@ async function main() {
         gps: false,
       }).catch(() => null) ?? {};
 
-      // ── Album from EXIF date or folder name ───────────────────────────────
-      let album;
+      // ── Album from EXIF date ──────────────────────────────────────────────
+      let album = 'unknown';
       if (raw.DateTimeOriginal) {
         const d = new Date(raw.DateTimeOriginal);
-        if (!isNaN(d)) {
-          album = d.toISOString().slice(0, 10);
-        }
-      }
-      if (!album) {
-        // Derive from relative path: the first sub-directory under public/photos/
-        const rel = relative(PHOTOS_DIR, filePath);
-        const folderPart = rel.split('/')[0] || rel.split('\\')[0];
-        album = parseFolderDate(folderPart);
+        if (!isNaN(d)) album = d.toISOString().slice(0, 10);
       }
 
       const dateTaken = raw.DateTimeOriginal
@@ -211,9 +204,23 @@ async function main() {
         .withMetadata(false)
         .toBuffer();
 
+      // ── Perceptual luminance (CIE L*) ─────────────────────────────────────
+      const rawBuf = await sharp(buf)
+        .resize(50, 50, { fit: 'inside' })
+        .removeAlpha()
+        .raw()
+        .toBuffer();
+
+      const pixelCount = rawBuf.length / 3;
+      let labLSum = 0;
+      for (let i = 0; i < rawBuf.length; i += 3) {
+        labLSum += rgbToLab(rawBuf[i], rawBuf[i + 1], rawBuf[i + 2])[0];
+      }
+      const luminance = Math.round((labLSum / pixelCount) * 10) / 10;
+
       // ── Upload ────────────────────────────────────────────────────────────
-      const thumbKey = `photos/${album}/${id}_600.jpg`;
-      const previewKey = `photos/${album}/${id}_1800.jpg`;
+      const thumbKey = `photos/${id}_600.jpg`;
+      const previewKey = `photos/${id}_1800.jpg`;
 
       await uploadBuffer(thumbKey, thumbBuf);
       await uploadBuffer(previewKey, previewBuf);
@@ -251,6 +258,7 @@ async function main() {
         thumb_url: thumbUrl,
         preview_url: previewUrl,
         exif,
+        luminance,
       };
 
       catalogue.push(entry);
@@ -258,7 +266,9 @@ async function main() {
       added++;
       console.log(`  ✓ uploaded → ${thumbKey}`);
     } catch (err) {
-      console.error(`  ✗ failed: ${err.message}`);
+      const extra = err.Endpoint ? ` → redirect to: ${err.Endpoint}` : '';
+      const code = err.Code ?? err.name ?? '';
+      console.error(`  ✗ failed [${code}]: ${err.message}${extra}`);
     }
   }
 

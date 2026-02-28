@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import PhotoLightbox from './PhotoLightbox';
 
 export interface Photo {
@@ -21,25 +21,42 @@ export interface Photo {
     iso?: number;
     exposure_compensation?: string;
   };
+  luminance: number; // CIE L*, 0–100
 }
 
 interface Props {
   photos: Photo[];
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Split into bright/dark pools, shuffle each, then interleave.
+// Works as a true 2D checkerboard with any odd column count.
+const THRESHOLD = 50; // CIE L* midpoint
+
+function checkerboard(photos: Photo[]): Photo[] {
+  const bright = shuffle(photos.filter(p => p.luminance >= THRESHOLD));
+  const dark = shuffle(photos.filter(p => p.luminance < THRESHOLD));
+  const result: Photo[] = [];
+  const n = Math.max(bright.length, dark.length);
+  for (let i = 0; i < n; i++) {
+    if (bright[i]) result.push(bright[i]);
+    if (dark[i]) result.push(dark[i]);
+  }
+  return result;
+}
+
 export default function PhotoGallery({ photos }: Props) {
-  const [thumbSize, setThumbSize] = useState(200);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const sorted = useMemo(() => checkerboard(photos), [photos]);
 
-  // Group photos by album, albums sorted descending
-  const albumMap = photos.reduce<Record<string, Photo[]>>((acc, photo) => {
-    (acc[photo.album] ??= []).push(photo);
-    return acc;
-  }, {});
-  const albumKeys = Object.keys(albumMap).sort((a, b) => b.localeCompare(a));
-  const flatPhotos = albumKeys.flatMap((k) => albumMap[k]);
-
-  // On mount: check ?photo= param for direct link support
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const photoId = params.get('photo');
@@ -64,51 +81,29 @@ export default function PhotoGallery({ photos }: Props) {
 
   return (
     <div className="photo-gallery">
-      <div className="gallery-controls">
-        <span className="gallery-count">{photos.length} photos</span>
-        <input
-          type="range"
-          min={120}
-          max={400}
-          step={10}
-          value={thumbSize}
-          onChange={(e) => setThumbSize(Number(e.target.value))}
-          aria-label="Thumbnail size"
-          className="gallery-slider"
-        />
-      </div>
-
-      {albumKeys.map((album) => (
-        <div key={album} className="album-group">
-          <div className="album-label">{album}</div>
-          <div
-            className="photo-grid"
-            style={{ '--thumb-size': `${thumbSize}px` } as React.CSSProperties}
+      <div className="photo-grid">
+        {sorted.map((photo) => (
+          <button
+            key={photo.id}
+            className="photo-cell"
+            onClick={() => openLightbox(photo.id)}
+            aria-label={`Photo from ${photo.album}`}
           >
-            {albumMap[album].map((photo) => (
-              <button
-                key={photo.id}
-                className="photo-cell"
-                onClick={() => openLightbox(photo.id)}
-                aria-label={`Photo from ${photo.album}`}
-              >
-                <img
-                  src={photo.thumb_url}
-                  width={photo.width}
-                  height={photo.height}
-                  alt={`Photo from ${photo.album}`}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
+            <img
+              src={photo.thumb_url}
+              width={photo.width}
+              height={photo.height}
+              alt={`Photo from ${photo.album}`}
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+        ))}
+      </div>
 
       {activeId && (
         <PhotoLightbox
-          photos={flatPhotos}
+          photos={sorted}
           initialId={activeId}
           onClose={closeLightbox}
         />

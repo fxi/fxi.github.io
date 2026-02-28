@@ -532,46 +532,16 @@ body.home {
   padding: 0 var(--px);
 }
 
-.gallery-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.gallery-count {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.gallery-slider {
-  flex: 1;
-  max-width: 160px;
-  accent-color: var(--fg);
-  cursor: pointer;
-}
-
-.album-group {
-  margin-bottom: 2rem;
-}
-
-.album-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--fg-dim);
-  margin-bottom: 0.5rem;
-}
-
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 200px), 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
+}
+
+@media (max-width: 600px) {
+  .photo-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .photo-cell {
