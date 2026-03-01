@@ -551,8 +551,7 @@ body.home {
   background: none;
   cursor: pointer;
   overflow: hidden;
-  /* Maintain aspect-ratio from width/height attrs (native browser behaviour) */
-  aspect-ratio: attr(width) / attr(height);
+  aspect-ratio: 1 / 1;
 }
 
 .photo-cell img {
@@ -781,4 +780,113 @@ body.home {
   .exif-row span:first-child {
     min-width: 5.5rem;
   }
+}
+
+/* ─── gallery year headings ───────────────────────────────────────────── */
+.gallery-year {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 1.5rem var(--px) 0.5rem;
+}
+
+/* ─── gallery sticky header ───────────────────────────────────────────── */
+.gallery-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem var(--px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--fg-dim);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+  margin-bottom: 1rem;
+}
+
+.gallery-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  line-height: 1;
+}
+
+.gallery-year-range {
+  opacity: 0.6;
+}
+
+/* ─── gallery config button (header inline) ───────────────────────────── */
+.gallery-config-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+.gallery-config-btn:hover {
+  color: var(--fg);
+}
+
+/* ─── gallery drawer ──────────────────────────────────────────────────── */
+.gallery-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(280px, 85vw);
+  background: var(--bg);
+  border-left: 1px solid var(--fg-dim);
+  z-index: 300;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+  padding: 2rem 1.5rem;
+}
+.gallery-drawer--open { transform: translateX(0); }
+
+.gallery-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+}
+
+/* ─── drawer inner controls ───────────────────────────────────────────── */
+.drawer-section-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 0.5rem;
+}
+.drawer-btn-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.drawer-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--fg-dim);
+  background: none;
+  color: var(--fg-muted);
+  border-radius: 2rem;
+  cursor: pointer;
+}
+.drawer-btn--active {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
 }
