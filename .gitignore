@@ -38,7 +38,7 @@ pnpm-debug.log*
 *.sln
 *.sw?
 .claude
-
+claude.md 
 # Temporary files
 *.log
 *.tmp
