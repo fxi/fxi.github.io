@@ -1,0 +1,83 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  description?: string;
+}
+
+const { title, date, description } = Astro.props;
+const dateStr = date.toISOString().slice(0, 10);
+---
+
+<Layout title={`${title} — Fred Moser`} description={description}>
+  <div class="post-header">
+    <p class="post-meta">{dateStr}</p>
+    <h1>{title}</h1>
+  </div>
+  <article class="post-body">
+    <slot />
+  </article>
+</Layout>
+
+<style>
+  .post-header {
+    margin-bottom: 2rem;
+  }
+  .post-meta {
+    margin: 0 0 0.25rem;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+  }
+
+  .post-body :global(p) {
+    font-size: 1rem;
+    line-height: 1.75;
+    margin: 0 0 1rem;
+  }
+  .post-body :global(h2) {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 2rem 0 0.5rem;
+  }
+  .post-body :global(pre) {
+    background: #161616;
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 0 0 1rem;
+  }
+  .post-body :global(code) {
+    font-family: 'Fira Mono', 'Cascadia Code', 'Menlo', monospace;
+    font-size: 0.88em;
+  }
+  .post-body :global(pre code) {
+    font-size: inherit;
+  }
+  .post-body :global(iframe.quine-demo) {
+    border: none;
+    width: 100%;
+    background: #000;
+    display: block;
+    border-radius: 4px;
+    margin: 1.5rem 0 2.5rem;
+  }
+  .post-body :global(mark.part) {
+    background: none;
+    font-family: 'Fira Mono', 'Cascadia Code', 'Menlo', monospace;
+    font-size: 0.88em;
+  }
+  .post-body :global(.c1) { color: #e06c75; }
+  .post-body :global(.c2) { color: #e5c07b; }
+  .post-body :global(.c3) { color: #98c379; }
+  .post-body :global(.c4) { color: #61afef; }
+  .post-body :global(.c5) { color: #c678dd; }
+  .post-body :global(.c6) { color: #56b6c2; }
+</style>

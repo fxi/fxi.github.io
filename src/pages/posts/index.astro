@@ -1,21 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { readdirSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { getCollection } from 'astro:content';
 
-const postsDir = resolve('public/posts');
-
-const posts = existsSync(postsDir)
-  ? readdirSync(postsDir, { withFileTypes: true })
-      .filter(d => d.isDirectory())
-      .map(d => {
-        // Slug: "2026_02_21" → date label "2026-02-21"
-        const slug = d.name;
-        const label = slug.replace(/_/g, '-');
-        return { slug, label };
-      })
-      .sort((a, b) => b.slug.localeCompare(a.slug))
-  : [];
+const posts = (await getCollection('posts', p => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <Layout title="Posts — Fred Moser">
@@ -25,10 +13,10 @@ const posts = existsSync(postsDir)
     <p>No posts yet.</p>
   ) : (
     <ul class="post-list">
-      {posts.map(({ slug, label }) => (
+      {posts.map(post => (
         <li class="post-item">
-          <span class="post-date">{label}</span>
-          <a href={`/posts/${slug}/`} class="post-title">{slug}</a>
+          <span class="post-date">{post.data.date.toISOString().slice(0, 10)}</span>
+          <a href={'/posts/' + post.slug + '/'} class="post-title">{post.data.title}</a>
         </li>
       ))}
     </ul>

@@ -1,0 +1,47 @@
+---
+title: Quine Skull
+date: 2022-01-05
+description: An animated rainbow quine rendered as a scrolling pixel skull.
+platform: original
+tags: [code, quine, javascript]
+---
+
+<iframe
+  src="/posts/2026-02-21-quine-skull/quine.html"
+  height="260"
+  scrolling="no"
+  title="Animated quine skull"
+  class="quine-demo"
+/>
+
+## The source
+
+```html
+<body bgcolor=x onload='setInterval(f=e=>{for(i=0,w=20,t++,e="",l=f+e;i<l.length;e+=`<f style="background:${"ѱ˺ǼĤĤǼǜɲѱ".charCodeAt(i/w)&1<<i%w-t?`hsl(${(i-20*t)%360},100%,50%)`:`#111`}">${l[i++]}</f>${i%w?"":"\n"}`);p.innerHTML=e/*๏_๏*/ },t=99)'><pre id="p">
+```
+
+## How it works
+
+## 1 — The skull bitmap
+
+The string <mark class="part c1">"ѱ˺ǼĤĤǼǜɲѱ"</mark> encodes the skull as 9 Unicode code points. Each character's code point is a 20-bit bitmask for one row of the skull: if bit *col* is set, that cell is lit. <mark class="part c1">charCodeAt(i/w)</mark> extracts the row mask for character index *i*.
+
+## 2 — Self-reference via `f + ""`
+
+`f` holds the `setInterval` callback. <mark class="part c2">l = f + e</mark> (where <mark class="part c2">e = ""</mark>) triggers JavaScript's implicit `toString()` on the function, giving `l` the raw source text of `f` itself. That text is then rendered — the function displays its own code.
+
+## 3 — Character rendering with `<f>`
+
+Each character in `l` is wrapped in a <mark class="part c3">&lt;f&gt;</mark> element — an arbitrary custom tag treated as inline by browsers. Its `background` CSS property is set to the skull-pixel colour for that position. The entire frame is written to <mark class="part c3">p.innerHTML</mark> at once.
+
+## 4 — Pixel lookup with scrolling
+
+<mark class="part c4">"ѱ˺ǼĤĤǼǜɲѱ".charCodeAt(i/w) &amp; 1&lt;&lt;i%w-t</mark>: integer-dividing `i` by `w=20` gives the row index; the bit shift by `(col − t)` tests the column offset relative to frame counter `t`. As `t` increments each tick, the tested column shifts left — scrolling the skull across the source.
+
+## 5 — Rainbow colour
+
+A lit pixel receives colour <mark class="part c5">hsl($&#123;(i-20*t)%360&#125;,100%,50%)</mark>. The hue depends on both the character index and the frame counter, so it continuously drifts and produces a smooth rainbow wave that travels across the skull independent of the scroll. Dark pixels use <mark class="part c5">#111</mark>.
+
+## 6 — Animation loop
+
+<mark class="part c6">setInterval(f=e=&gt;&#123;&hellip;&#125;, t=99)</mark> sets up a 99 ms timer. The expression <mark class="part c6">f=e=&gt;&#123;&hellip;&#125;</mark> simultaneously defines the arrow function and stores it in `f` — making it available for self-reference in mechanism 2. Each tick increments `t`, advancing both the scroll and the rainbow.
