@@ -1,5 +1,47 @@
 [
   {
+    "id": "5168EAB8-9702-43AB-AC43-C7D72089015D",
+    "filename": "IMG_6154.HEIC",
+    "album": "2026-03-04",
+    "date_taken": "2026-03-04T18:23:50.518000+01:00",
+    "date_uploaded": "2026-03-05T19:16:56.415Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/5168EAB8-9702-43AB-AC43-C7D72089015D_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/5168EAB8-9702-43AB-AC43-C7D72089015D_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone 16",
+      "lens": "iPhone 16 back dual wide camera 2.22mm f/2.2",
+      "focal_length": "2.2mm",
+      "aperture": "f/2.2",
+      "shutter_speed": "1/182s",
+      "iso": 40,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 48.1
+  },
+  {
+    "id": "EDE9E446-B8A7-41FD-A214-1E3A1BCAAE49",
+    "filename": "BM9A3490.CR3",
+    "album": "2026-03-02",
+    "date_taken": "2026-03-02T20:55:11.650000+01:00",
+    "date_uploaded": "2026-03-05T19:16:55.274Z",
+    "width": 6960,
+    "height": 4640,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/EDE9E446-B8A7-41FD-A214-1E3A1BCAAE49_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/EDE9E446-B8A7-41FD-A214-1E3A1BCAAE49_1800.webp",
+    "exif": {
+      "camera": "Canon Canon EOS R7",
+      "lens": "RF200-800mm F6.3-9 IS USM",
+      "focal_length": "800mm",
+      "aperture": "f/10",
+      "shutter_speed": "1/2000s",
+      "iso": 2500,
+      "exposure_compensation": "-0.32999999999999996 EV"
+    },
+    "luminance": 24.7
+  },
+  {
     "id": "AD1A41C2-21B9-47D2-93EC-5875BEEFDF98",
     "filename": "IMG_6097.HEIC",
     "album": "2026-02-27",
@@ -1433,6 +1475,69 @@
     "luminance": 52.7
   },
   {
+    "id": "B29ABA85-A477-44BA-9D02-D0540E3ABB58",
+    "filename": "IMG_2624.HEIC",
+    "album": "2024-08-07",
+    "date_taken": "2024-08-07T20:11:22.843000+02:00",
+    "date_uploaded": "2026-03-05T19:16:54.645Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B29ABA85-A477-44BA-9D02-D0540E3ABB58_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B29ABA85-A477-44BA-9D02-D0540E3ABB58_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/1567s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 41
+  },
+  {
+    "id": "1E058801-42B4-465A-92A7-3C9C7AC2918C",
+    "filename": "IMG_2619.HEIC",
+    "album": "2024-08-07",
+    "date_taken": "2024-08-07T19:29:28.329000+02:00",
+    "date_uploaded": "2026-03-05T19:16:53.845Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/1E058801-42B4-465A-92A7-3C9C7AC2918C_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/1E058801-42B4-465A-92A7-3C9C7AC2918C_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/5405s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 48.9
+  },
+  {
+    "id": "5746FCC9-6D42-4AF5-9E0B-FAC44C408086",
+    "filename": "IMG_2611.HEIC",
+    "album": "2024-08-07",
+    "date_taken": "2024-08-07T18:33:12.909000+02:00",
+    "date_uploaded": "2026-03-05T19:16:53.068Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/5746FCC9-6D42-4AF5-9E0B-FAC44C408086_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/5746FCC9-6D42-4AF5-9E0B-FAC44C408086_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/1656s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 57.6
+  },
+  {
     "id": "79AE0975-0477-45C1-90E6-DA96FF140357",
     "filename": "IMG_2459.HEIC",
     "album": "2024-08-03",
@@ -1452,6 +1557,69 @@
       "exposure_compensation": "0 EV"
     },
     "luminance": 35.8
+  },
+  {
+    "id": "41015C32-5542-4ECA-96D5-E42738317D9A",
+    "filename": "IMG_2418.HEIC",
+    "album": "2024-08-01",
+    "date_taken": "2024-08-01T11:26:50.441000+02:00",
+    "date_uploaded": "2026-03-05T19:16:52.126Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/41015C32-5542-4ECA-96D5-E42738317D9A_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/41015C32-5542-4ECA-96D5-E42738317D9A_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/3040s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 56.1
+  },
+  {
+    "id": "EE6D086F-FF68-47C2-8E9A-87235EE6DDDB",
+    "filename": "IMG_2385.HEIC",
+    "album": "2024-07-31",
+    "date_taken": "2024-07-31T10:45:53.829000+02:00",
+    "date_uploaded": "2026-03-05T19:16:51.040Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/EE6D086F-FF68-47C2-8E9A-87235EE6DDDB_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/EE6D086F-FF68-47C2-8E9A-87235EE6DDDB_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/2558s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 64.8
+  },
+  {
+    "id": "B94289F9-5F51-4924-BB82-CC20BBE4290C",
+    "filename": "IMG_7293.HEIC",
+    "album": "2022-06-10",
+    "date_taken": "2022-06-10T15:37:28.695289+02:00",
+    "date_uploaded": "2026-03-05T19:16:50.125Z",
+    "width": 4032,
+    "height": 3024,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B94289F9-5F51-4924-BB82-CC20BBE4290C_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B94289F9-5F51-4924-BB82-CC20BBE4290C_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone SE (3rd generation)",
+      "lens": "iPhone SE (3rd generation) back camera 3.99mm f/1.8",
+      "focal_length": "4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/1116s",
+      "iso": 32,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 49.7
   },
   {
     "id": "1773E31E-3BEE-4216-BF6E-040D91B27B39",
