@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RouteGallery from '../components/RouteGallery';
+import tracks from '../data/tracks.json';
+import type { Track } from '../components/RouteGallery';
+---
+
+<Layout title="Routes — Fred Moser" fullHeight>
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.19.0/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@5.19.0/dist/maplibre-gl.js'></script>
+  <RouteGallery tracks={tracks as unknown as Track[]} client:load />
+</Layout>

@@ -890,3 +890,116 @@ body.home {
   color: var(--bg);
   border-color: var(--fg);
 }
+
+/* ─── route gallery — split panel ────────────────────────────────────────── */
+
+.route-gallery {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Map panel */
+.route-map-panel {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/* List panel */
+.route-list-panel {
+  width: 320px;
+  overflow-y: auto;
+  border-left: 1px solid var(--fg-dim);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile */
+@media (max-width: 860px) {
+  .route-gallery { flex-direction: column; }
+  .route-map-panel { height: 50dvh; flex: none; }
+  .route-list-panel { width: 100%; border-left: none; border-top: 1px solid var(--fg-dim); flex: 1; }
+}
+
+/* Track item */
+.route-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--fg-dim);
+  cursor: pointer;
+  outline: none;
+}
+
+.route-item:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
+}
+
+.route-item--active {
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+}
+
+.route-item-name {
+  font-weight: 500;
+  color: var(--fg);
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.route-item-elevation {
+  height: 32px;
+  width: 100%;
+  display: block;
+  margin: 4px 0;
+}
+
+.route-elev-fill {
+  fill: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.route-elev-line {
+  fill: none;
+  stroke: var(--fg-muted);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.route-item-stats {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  margin-bottom: 0.4rem;
+}
+
+.route-item-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.route-btn {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--fg-dim);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.route-btn:hover {
+  border-color: var(--fg-muted);
+  color: var(--fg);
+}
+
+.route-btn--on {
+  border-color: var(--fg-muted);
+  color: var(--fg);
+}

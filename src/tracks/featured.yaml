@@ -1,0 +1,43 @@
+# Routes to feature on /routes
+# id: Strava activity ID
+# name: override Strava activity name (optional)
+# d: difficulty  1–5
+# s: scenic      1–5
+# e: endurance   1–5
+
+- id: "9881684764"
+  name: Croix biche classic
+  d: 2
+  s: 3
+  e: 2
+
+- id: "11668996716"
+  name: Tour de la cuvette
+  d: 5
+  s: 5
+  e: 5
+
+- id: "17603551464"
+  name : Credoz + arve 
+  d: 2
+  e: 2
+  s: 3
+
+
+- id: "5354777542"
+  name: Genève Lyon VTT
+  d: 5
+  e: 5
+  s: 3
+
+- id: "9988459723"
+  name: Genève Saint-Imier 
+  d: 4
+  e: 5 
+  s: 4 
+
+- id: "9420290442"
+  name : "Martigny Genève" 
+  d: 5
+  e: 4
+  s: 5
