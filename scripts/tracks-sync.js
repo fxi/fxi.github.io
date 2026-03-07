@@ -6,9 +6,7 @@
  *
  * Uploads per activity:
  *   tracks/{id}.gpx              — stripped GPX (lat/lon/ele only)
- *   tracks/{id}_photo_600.webp   — activity photo 600 px wide
- *   tracks/{id}_photo_1200.webp  — activity photo 1200 px wide
- *   tracks/{id}_map.webp         — static map thumbnail via MapTiler
+ *   tracks/{id}_photo_{i}_600.webp — activity photo 600 px wide (up to 3)
  *
  * Usage:
  *   node --env-file=.env scripts/tracks-sync.js
@@ -19,18 +17,14 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import sharp from 'sharp';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const FEATURED_PATH = join(ROOT, 'src', 'tracks', 'featured.yaml');
 const CATALOGUE_PATH = join(ROOT, 'src', 'data', 'tracks.json');
 
-const MAPTILER_MAP_ID = '01984598-44d5-70a4-b028-6ce2d6f3027a';
-const MAP_W = 825;
-const MAP_H = 350;
-const GEOMETRY_MAX_PTS = 300;  // stored in JSON for interactive map
-const THUMBNAIL_MAX_PTS = 150; // points for static map URL / encoded polyline
+const ELEVATION_PTS = 150; // points stored in tracks.json for elevation sparkline
 
 // ── env ───────────────────────────────────────────────────────────────────────
 
@@ -44,22 +38,10 @@ const {
   STRAVA_SECRET: stravaClientSecret,
   STRAVA_REFRESH_TOKEN: stravaRefreshToken,
   STRAVA_ACCESS_TOKEN: stravaAccessTokenEnv,
-  MAPTILER_KEY: maptilerKey,
-  MAPTILER_KEY_SERVER: maptilerKeyServer,
 } = process.env;
-
-// Server-side thumbnail generation needs an unrestricted key.
-// MAPTILER_KEY_SERVER — no origin restrictions (create at cloud.maptiler.com/account/keys/).
-// Falls back to MAPTILER_KEY if MAPTILER_KEY_SERVER is not set, but that key
-// is likely domain-restricted and will return 403 from a Node.js process.
-const thumbnailKey = maptilerKeyServer || maptilerKey;
 
 if (!endpoint || !region || !bucket || !accessKeyId || !secretAccessKey) {
   console.error('Missing S3 env vars (EXOSCALE_FXI_*).');
-  process.exit(1);
-}
-if (!thumbnailKey) {
-  console.error('Missing MAPTILER_KEY_SERVER (or MAPTILER_KEY) for map thumbnail generation.');
   process.exit(1);
 }
 if (!stravaClientId || !stravaClientSecret) {
@@ -84,6 +66,21 @@ async function s3Put(key, body, contentType) {
     Bucket: bucket, Key: key, Body: body, ContentType: contentType,
     CacheControl: 'public, max-age=31536000, immutable', ACL: 'public-read',
   }));
+}
+
+async function s3EnsureCors() {
+  await s3.send(new PutBucketCorsCommand({
+    Bucket: bucket,
+    CORSConfiguration: {
+      CORSRules: [{
+        AllowedOrigins: ['*'],
+        AllowedMethods: ['GET'],
+        AllowedHeaders: ['*'],
+        MaxAgeSeconds: 3600,
+      }],
+    },
+  }));
+  console.log('  ✓ CORS configured on bucket');
 }
 
 async function s3Delete(key) {
@@ -163,95 +160,12 @@ ${trkpts}
 </gpx>`;
 }
 
-// ── Google Encoded Polyline (lat/lng order per spec) ─────────────────────────
-
-function encodePolylineValue(val) {
-  val = val < 0 ? ~(val << 1) : (val << 1);
-  let out = '';
-  while (val >= 0x20) {
-    out += String.fromCharCode((0x20 | (val & 0x1f)) + 63);
-    val >>= 5;
-  }
-  return out + String.fromCharCode(val + 63);
-}
-
-function encodePolyline(points) {
-  // points: [lon, lat, ele] — encode as lat,lon pairs per Google spec
-  let out = '', prevLat = 0, prevLon = 0;
-  for (const [lon, lat] of points) {
-    const iLat = Math.round(lat * 1e5);
-    const iLon = Math.round(lon * 1e5);
-    out += encodePolylineValue(iLat - prevLat);
-    out += encodePolylineValue(iLon - prevLon);
-    prevLat = iLat; prevLon = iLon;
-  }
-  return out;
-}
-
-// ── MapTiler static map thumbnail ─────────────────────────────────────────────
-
-async function generateMapThumbnail(points) {
-  const pts = downsample(points, THUMBNAIL_MAX_PTS);
-
-  // Explicit lon,lat pairs — user-confirmed MapTiler format.
-  // MapTiler parses the path value with literal | separators (not %7C),
-  // so we build the URL string manually rather than using searchParams.
-  const coords = pts.map(([lon, lat]) => `${lon.toFixed(6)},${lat.toFixed(6)}`).join('|');
-  const pathValue = `fill:none|width:2|stroke:00cccc|${coords}`;
-  const apiUrl = `https://api.maptiler.com/maps/${MAPTILER_MAP_ID}/static/auto/${MAP_W}x${MAP_H}.png?key=${thumbnailKey}&path=${pathValue}`;
-
-  console.log(`    URL: ${apiUrl.replace(maptilerKey, '***')}`);
-
-  const res = await fetch(apiUrl);
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    console.warn(`    ⚠ MapTiler static API ${res.status} — falling back to SVG render`);
-    if (!text.startsWith('\x89PNG')) console.warn(`    ${text.slice(0, 200)}`);
-    return buildSVGThumbnail(points);
-  }
-
-  const buf = Buffer.from(await res.arrayBuffer());
-  return sharp(buf).webp({ quality: 88 }).toBuffer();
-}
-
-// ── SVG fallback thumbnail (local, no API) ────────────────────────────────────
-
-function buildSVGThumbnail(points) {
-  const pts = downsample(points, THUMBNAIL_MAX_PTS);
-  const lons = pts.map(p => p[0]), lats = pts.map(p => p[1]);
-  const minLon = Math.min(...lons), maxLon = Math.max(...lons);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-
-  const pad = Math.round(MAP_W * 0.08);
-  const W = MAP_W - pad * 2, H = MAP_H - pad * 2;
-  const lonRange = maxLon - minLon || 0.001;
-  const latRange = maxLat - minLat || 0.001;
-  const scale = Math.min(W / lonRange, H / latRange);
-  const offX = pad + (W - lonRange * scale) / 2;
-  const offY = pad + (H - latRange * scale) / 2;
-
-  const toX = lon => offX + (lon - minLon) * scale;
-  const toY = lat => (MAP_H - offY) - (lat - minLat) * scale;
-
-  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${toX(p[0]).toFixed(1)},${toY(p[1]).toFixed(1)}`).join('');
-  const sx = toX(pts[0][0]).toFixed(1),      sy = toY(pts[0][1]).toFixed(1);
-  const ex = toX(pts.at(-1)[0]).toFixed(1),  ey = toY(pts.at(-1)[1]).toFixed(1);
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${MAP_W}" height="${MAP_H}">
-  <rect width="${MAP_W}" height="${MAP_H}" fill="#1a1a18"/>
-  <defs><filter id="g"><feGaussianBlur stdDeviation="5" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <path d="${d}" fill="none" stroke="#00cccc" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.18"/>
-  <path d="${d}" fill="none" stroke="#00e5e5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#g)" opacity="0.92"/>
-  <circle cx="${sx}" cy="${sy}" r="5" fill="#00e5e5" stroke="#1a1a18" stroke-width="2"/>
-  <circle cx="${ex}" cy="${ey}" r="5" fill="#00cccc" stroke="#1a1a18" stroke-width="2"/>
-</svg>`;
-  return sharp(Buffer.from(svg)).webp({ quality: 88 }).toBuffer();
-}
-
 // ── main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
+  // 0. Ensure CORS on bucket (allows browser to fetch GPX files)
+  await s3EnsureCors();
+
   // 1. Parse featured list
   const featured = parseYaml(readFileSync(FEATURED_PATH, 'utf8'));
   const featuredById = new Map(featured.map(f => [String(f.id), f]));
@@ -262,6 +176,23 @@ async function main() {
   if (existsSync(CATALOGUE_PATH)) {
     try { catalogue = JSON.parse(readFileSync(CATALOGUE_PATH, 'utf8')); } catch { /* empty */ }
   }
+
+  // 2b. Migrate: extract elevation from old geometry field, drop geometry + map_url
+  let migrated = 0;
+  catalogue = catalogue.map(entry => {
+    const { geometry, map_url, elevation, ...rest } = entry;
+    const hasElevation = Array.isArray(elevation) && elevation.length > 0;
+    const newEntry = {
+      ...rest,
+      elevation: hasElevation
+        ? elevation
+        : (geometry ? downsample(geometry, ELEVATION_PTS).map(p => Math.round(p[2])) : []),
+    };
+    if (geometry || map_url) migrated++;
+    return newEntry;
+  });
+  if (migrated > 0) console.log(`  Migrated ${migrated} existing entry(ies): extracted elevation, removed geometry + map_url`);
+
   const catalogueById = new Map(catalogue.map(e => [e.id, e]));
 
   // 3. Diff
@@ -275,11 +206,9 @@ async function main() {
     for (const entry of toDelete) {
       await Promise.all([
         s3Delete(`tracks/${entry.id}.gpx`),
-        s3Delete(`tracks/${entry.id}_map.webp`),
-        // legacy single-photo format
-        s3Delete(`tracks/${entry.id}_photo_600.webp`),
-        s3Delete(`tracks/${entry.id}_photo_1200.webp`),
-        // multi-photo format (up to 3)
+        s3Delete(`tracks/${entry.id}_map.webp`), // cleanup legacy
+        s3Delete(`tracks/${entry.id}_photo_600.webp`), // legacy single-photo
+        s3Delete(`tracks/${entry.id}_photo_1200.webp`), // legacy
         ...([0, 1, 2].map(i => s3Delete(`tracks/${entry.id}_photo_${i}_600.webp`))),
       ]);
       console.log(`  ✓ removed ${entry.id}`);
@@ -292,21 +221,17 @@ async function main() {
     console.log('\nObtaining Strava access token…');
     const token = await getStravaToken();
 
-    // Verify token scope — activity:read is required
     const athlete = await stravaGet('/athlete', token);
     console.log(`  Authenticated as: ${athlete.firstname} ${athlete.lastname} (id ${athlete.id})`);
-    // Strava doesn't expose granted scopes via API; log a reminder
     console.log('  (Token must have activity:read or activity:read_all scope)');
 
     for (const feat of toAdd) {
       const id = String(feat.id);
       console.log(`\nProcessing activity ${id}…`);
       try {
-        // Activity metadata
         const activity = await stravaGet(`/activities/${id}?include_all_efforts=false`, token);
         console.log(`  "${activity.name}" — ${(activity.distance / 1000).toFixed(1)} km`);
 
-        // GPS + altitude streams
         const streams = await stravaGet(
           `/activities/${id}/streams?keys=latlng,altitude&key_by_type=true`,
           token,
@@ -321,12 +246,8 @@ async function main() {
         // GPX from full track
         const gpxStr = buildGpx(fullPoints);
 
-        // Simplified geometry stored in JSON (for interactive map)
-        const geometry = downsample(fullPoints, GEOMETRY_MAX_PTS);
-
-        // Static map thumbnail
-        console.log('  Generating map thumbnail…');
-        const mapBuf = await generateMapThumbnail(fullPoints);
+        // Elevation sparkline data (downsampled integers)
+        const elevation = downsample(fullPoints, ELEVATION_PTS).map(p => Math.round(p[2]));
 
         // Activity photos — up to 3
         const photoUrls = [];
@@ -352,10 +273,9 @@ async function main() {
           }
         }
 
-        // Upload GPX + map
+        // Upload GPX
         console.log('  Uploading to S3…');
         await s3Put(`tracks/${id}.gpx`, gpxStr, 'application/gpx+xml');
-        await s3Put(`tracks/${id}_map.webp`, mapBuf, 'image/webp');
 
         catalogue.push({
           id,
@@ -368,11 +288,10 @@ async function main() {
           difficulty: feat.d ?? null,
           scenic: feat.s ?? null,
           endurance: feat.e ?? null,
-          map_url: `${publicBase}/tracks/${id}_map.webp`,
           photos: photoUrls,
           gpx_url: `${publicBase}/tracks/${id}.gpx`,
           bbox: calcBbox(fullPoints),
-          geometry,
+          elevation,
         });
 
         console.log(`  ✓ done`);

@@ -13,7 +13,7 @@ export default defineConfig({
   vite: {
     define: {
       "import.meta.env.PUBLIC_MAPTILER_KEY": JSON.stringify(
-        env.MAPTILER_KEY ?? "",
+        env.MAPTILER_KEY ?? process.env.MAPTILER_KEY ?? "",
       ),
     },
   },

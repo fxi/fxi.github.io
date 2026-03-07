@@ -5,6 +5,18 @@
 # s: scenic      1–5
 # e: endurance   1–5
 
+- id: "9314310309"
+  name: Scaletta Pass 
+  d: 5
+  s: 5
+  e: 4
+
+- id: "15310256830"
+  name: Aigle Genève 
+  d: 5
+  s: 5
+  e: 4
+
 - id: "9881684764"
   name: Croix biche classic
   d: 2
@@ -16,6 +28,18 @@
   d: 5
   s: 5
   e: 5
+
+- id: "334015657"
+  name: Val da Camp - Valle di Fraele 
+  d: 5
+  s: 5
+  e: 5
+
+- id: "9551253185" 
+  name : Genève - Lausanne
+  d: 4
+  s: 4
+  e: 3
 
 - id: "17603551464"
   name : Credoz + arve 
@@ -41,3 +65,9 @@
   d: 5
   e: 4
   s: 5
+
+- id: "3888943962"
+  name: "Lac de Joux"
+  d: 1
+  e: 5 
+  s: 4

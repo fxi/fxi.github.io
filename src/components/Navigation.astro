@@ -12,14 +12,20 @@ const navItems = [
 ---
 
 <nav class="site-nav">
-  {navItems.map(({ href, label }) => (
-    <a
-      href={href}
-      class:list={['nav-link', currentPath.startsWith(href) && 'nav-link--active']}
-    >
-      {label}
-    </a>
-  ))}
+  <div class="nav-links" id="nav-links">
+    {navItems.map(({ href, label }) => (
+      <a
+        href={href}
+        class:list={['nav-link', currentPath.startsWith(href) && 'nav-link--active']}
+      >
+        {label}
+      </a>
+    ))}
+  </div>
+
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 
   <button class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
     <!-- Sun (shown in light mode) -->
@@ -51,6 +57,20 @@ const navItems = [
     if (attr === 'light' || attr === 'dark') return attr;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
+
+  const hamburger = document.getElementById('nav-hamburger');
+  const navLinks = document.getElementById('nav-links');
+  hamburger?.addEventListener('click', () => {
+    const open = navLinks?.classList.toggle('nav-open');
+    hamburger.setAttribute('aria-expanded', String(open));
+  });
+  // Close when a link is clicked (single-page navigations)
+  navLinks?.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('nav-open');
+      hamburger?.setAttribute('aria-expanded', 'false');
+    });
+  });
 
   const btn = document.getElementById('theme-toggle');
 

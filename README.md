@@ -1,75 +1,81 @@
-# FXI Portfolio
+# fxi.io
 
-My Portfolio website built with [Astro](https://astro.build), React, and Tailwind CSS.
+Personal portfolio site for Fred Moser. Built with Astro, React, and MapLibre GL.
 
-## 🚀 Tech Stack
+## Stack
 
-- [Astro](https://astro.build) - The web framework for content-driven websites
-- [React](https://react.dev) - UI component library
-- [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
-- TypeScript - For type safety and better developer experience
+- [Astro](https://astro.build) — static site generator with MDX support
+- [React](https://react.dev) — interactive components (photo gallery, route map)
+- [MapLibre GL](https://maplibre.org) — vector map on the /routes page
+- [Exoscale SOS](https://www.exoscale.com/object-storage/) — S3-compatible object storage for media (photos, GPX files)
+- [Strava API](https://developers.strava.com) — activity data for routes
+- [MapTiler](https://www.maptiler.com) — map style / tiles
 
-## 📦 Project Structure
+## Pages
 
-```plaintext
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── React components (.tsx)
-│   ├── layouts/
-│   │   └── Layout files (.astro)
-│   └── pages/
-│       └── Page components (.astro)
-└── package.json
+| Route | Description |
+|---|---|
+| `/` | Home |
+| `/about` | About |
+| `/projects` | Projects |
+| `/publications` | Publications |
+| `/photos` | Photo gallery (synced from Photos.app) |
+| `/routes` | Interactive route map (synced from Strava) |
+| `/posts` | Blog posts (MDX) |
+
+## Development
+
+```sh
+npm install
+npm run dev        # http://localhost:4321
 ```
 
-## 🧞 Commands
+Requires a `.env` file — copy `.env.demo` and fill in the values.
 
-All commands are run from the root of the project, from a terminal:
+## Sync scripts
 
-| Command                   | Action                                           |
-| :----------------------- | :----------------------------------------------- |
-| `npm install`            | Installs dependencies                            |
-| `npm run dev`            | Starts local dev server at `localhost:4321`      |
-| `npm run build`          | Build your production site to `./dist/`          |
-| `npm run preview`        | Preview your build locally, before deploying     |
-| `npm run astro ...`      | Run CLI commands like `astro add`, `astro check` |
+### Photos — `npm run photos:sync`
 
-## 🚀 Getting Started
+Reads from a macOS Photos.app album named `fxi_io_gallery`, resizes and converts to WebP
+via `sharp`, uploads to Exoscale SOS, and updates `src/data/photos.json`.
 
-1. Clone the repository:
-   ```bash
-   git clone [your-repo-url]
-   ```
+Requires: [`osxphotos`](https://github.com/RhetTbull/osxphotos) (`pip install osxphotos`)
+and the Exoscale env vars.
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Routes — `npm run tracks:sync`
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+Reads `src/tracks/featured.yaml` (list of Strava activity IDs with optional metadata),
+fetches GPS streams and activity photos from the Strava API, uploads GPX files and photo
+thumbnails (600 px WebP) to Exoscale SOS, and updates `src/data/tracks.json`.
 
-4. Open [http://localhost:4321](http://localhost:4321) in your browser
+The script is incremental: only new entries are fetched from Strava; removed entries are
+deleted from S3.
 
-## 🎨 Customization
+**featured.yaml fields:**
 
-- Modify `src/styles/global.css` for global styles
-- Update Tailwind configuration in `tailwind.config.mjs`
-- Add new components in `src/components/`
-- Create new pages in `src/pages/`
+```yaml
+- id: "1234567890"      # Strava activity ID (required)
+  name: My Route        # override Strava activity name (optional)
+  d: 3                  # difficulty  1-5 (optional)
+  s: 4                  # scenic      1-5 (optional)
+  e: 3                  # endurance   1-5 (optional)
+```
 
-## 📝 License
+**Strava setup:** create an app at https://www.strava.com/settings/api, complete the OAuth
+flow once to get a refresh token with `activity:read_all` scope, then store it in `.env`.
+The script refreshes the access token automatically on each run.
 
-[MIT License](LICENSE)
+## Environment variables
 
-## 👥 Contributing
+See `.env.demo` for the full list. The file is split into two groups:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- **Exoscale** — object storage credentials (required for both sync scripts and for the
+  map to load GPX files in the browser)
+- **Strava / MapTiler** — required only for `tracks:sync` and the map style respectively
 
+## Build
 
-
+```sh
+npm run build      # outputs to dist/
+npm run preview    # preview the production build locally
+```
