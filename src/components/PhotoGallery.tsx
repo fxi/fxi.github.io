@@ -139,7 +139,7 @@ function GalleryDrawer({ open, layout, onLayout, filter, onFilter, onClose }: Dr
 export default function PhotoGallery({ photos }: Props) {
   const [activeId, setActiveId]     = useState<string | null>(null);
   const [sorted, setSorted]         = useState<Photo[]>(photos);
-  const [layout, setLayoutState]    = useState<LayoutMode>('flat');
+  const [layout, setLayoutState]    = useState<LayoutMode>('year');
   const [filter, setFilterState]    = useState<FilterId>('none');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
