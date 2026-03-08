@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Download, Copy } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -229,10 +230,10 @@ function RouteItem({
           onClick={(e) => e.stopPropagation()}
           title="Download GPX"
         >
-          ⬇ GPX
+          <Download size={14} aria-hidden /> GPX
         </a>
         <button className="route-btn" onClick={copyLink} title="Copy link">
-          ⧉
+          <Copy size={14} aria-hidden />
         </button>
       </div>
     </div>

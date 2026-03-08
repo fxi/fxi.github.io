@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight, Camera, X } from 'lucide-react';
 import type { Photo } from './PhotoGallery';
 
 interface Props {
@@ -107,9 +108,7 @@ export default function PhotoLightbox({ photos, initialId, onClose }: Props) {
           aria-label="Previous photo"
         >
           <span className="lightbox-zone-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+            <ChevronLeft aria-hidden />
           </span>
         </button>
       )}
@@ -120,9 +119,7 @@ export default function PhotoLightbox({ photos, initialId, onClose }: Props) {
           aria-label="Next photo"
         >
           <span className="lightbox-zone-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
+            <ChevronRight aria-hidden />
           </span>
         </button>
       )}
@@ -145,7 +142,7 @@ export default function PhotoLightbox({ photos, initialId, onClose }: Props) {
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         aria-label="Close"
       >
-        ✕
+        <X aria-hidden />
       </button>
 
       {/* Camera / info button — bottom right */}
@@ -155,10 +152,7 @@ export default function PhotoLightbox({ photos, initialId, onClose }: Props) {
         aria-label="Toggle photo info"
         aria-pressed={showExif}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg>
+        <Camera aria-hidden />
       </button>
 
       {/* EXIF panel — floating above info button */}
