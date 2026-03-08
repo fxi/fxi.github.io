@@ -1601,6 +1601,46 @@
     "luminance": 64.8
   },
   {
+    "id": "BD32E155-7A9C-4FFA-8D59-620445F672BF",
+    "filename": "20240421_154127.jpg",
+    "album": "2024-04-21",
+    "date_taken": "2024-04-21T15:41:27.611000+02:00",
+    "date_uploaded": "2026-03-08T08:21:25.526Z",
+    "width": 4000,
+    "height": 3000,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/BD32E155-7A9C-4FFA-8D59-620445F672BF_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/BD32E155-7A9C-4FFA-8D59-620445F672BF_1800.webp",
+    "exif": {
+      "camera": "samsung Galaxy S23",
+      "focal_length": "5.4mm",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/2790s",
+      "iso": 25,
+      "exposure_compensation": "0 EV"
+    },
+    "luminance": 52.8
+  },
+  {
+    "id": "B6F45BB4-7D8D-492D-AC35-EF7780026EBC",
+    "filename": "IMG_6180.jpeg",
+    "album": "2024-01-27",
+    "date_taken": "2024-01-27T13:05:25.235000+01:00",
+    "date_uploaded": "2026-03-08T08:21:24.619Z",
+    "width": 3024,
+    "height": 4032,
+    "thumb_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B6F45BB4-7D8D-492D-AC35-EF7780026EBC_600.webp",
+    "preview_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/photos/B6F45BB4-7D8D-492D-AC35-EF7780026EBC_1800.webp",
+    "exif": {
+      "camera": "Apple iPhone 15 Pro",
+      "lens": "iPhone 15 Pro back triple camera 2.22mm f/2.2",
+      "focal_length": "2.2mm",
+      "aperture": "f/2.2",
+      "shutter_speed": "1/1748s",
+      "iso": 50
+    },
+    "luminance": 47.9
+  },
+  {
     "id": "B94289F9-5F51-4924-BB82-CC20BBE4290C",
     "filename": "IMG_7293.HEIC",
     "album": "2022-06-10",
