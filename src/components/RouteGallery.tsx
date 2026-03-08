@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Download, Copy, Map } from "lucide-react";
+import { Download, Copy, Map as MapIcon, X } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -120,6 +120,145 @@ function ElevationSparkline({ elevation }: { elevation: number[] }) {
       <path d={areaD} className="route-elev-fill" />
       <path d={lineD} className="route-elev-line" />
     </svg>
+  );
+}
+
+// ── ElevationProfileInteractive ───────────────────────────────────────────────
+
+function ElevationProfileInteractive({
+  elevation,
+  onHoverProgress,
+}: {
+  elevation: number[];
+  onHoverProgress: (p: number | null) => void;
+}) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [cursor, setCursor] = useState<number | null>(null);
+
+  if (elevation.length < 2) return null;
+
+  const minEle = Math.min(...elevation);
+  const maxEle = Math.max(...elevation);
+  const range = maxEle - minEle || 1;
+
+  const W = 300;
+  const H = 72;
+  const padY = 6;
+
+  const pts = elevation.map((ele, i) => {
+    const x = (i / (elevation.length - 1)) * W;
+    const y = H - padY - ((ele - minEle) / range) * (H - padY * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+
+  const lineD = `M${pts.join("L")}`;
+  const areaD = `M0,${H}L${pts.join("L")}L${W},${H}Z`;
+
+  const handleMove = (clientX: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    setCursor(p);
+    onHoverProgress(p);
+  };
+
+  const handleLeave = () => {
+    setCursor(null);
+    onHoverProgress(null);
+  };
+
+  const cursorElevIdx = cursor !== null ? Math.round(cursor * (elevation.length - 1)) : null;
+  const cursorEle = cursorElevIdx !== null ? elevation[cursorElevIdx] : null;
+  const cursorX = cursor !== null ? cursor * W : null;
+  // Keep label inside SVG bounds
+  const labelX = cursorX !== null ? Math.min(cursorX + 4, W - 38) : null;
+
+  return (
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="route-summary-profile"
+      aria-hidden="true"
+      onMouseMove={(e) => handleMove(e.clientX)}
+      onMouseLeave={handleLeave}
+      onTouchMove={(e) => { e.preventDefault(); handleMove(e.touches[0].clientX); }}
+      onTouchEnd={handleLeave}
+    >
+      <path d={areaD} className="route-elev-fill" />
+      <path d={lineD} className="route-elev-line" />
+      {cursorX !== null && (
+        <>
+          <line
+            x1={cursorX} y1={0}
+            x2={cursorX} y2={H}
+            className="route-profile-cursor"
+          />
+          {cursorEle !== null && labelX !== null && (
+            <text x={labelX} y={14} className="route-profile-label">
+              {Math.round(cursorEle)} m
+            </text>
+          )}
+        </>
+      )}
+    </svg>
+  );
+}
+
+// ── RouteSummaryPanel ─────────────────────────────────────────────────────────
+
+function RouteSummaryPanel({
+  track,
+  onClose,
+  onHoverProgress,
+}: {
+  track: Track;
+  onClose: () => void;
+  onHoverProgress: (p: number | null) => void;
+}) {
+  const time = fmtTime(track.moving_time_s);
+
+  const copyLink = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const url = `${window.location.origin}${window.location.pathname}?route=${track.id}`;
+      navigator.clipboard.writeText(url).catch(() => {});
+    },
+    [track.id],
+  );
+
+  return (
+    <div className="route-summary-panel">
+      <p className="route-summary-meta">
+        <span style={{ fontWeight: 700 }}>{sportLabel(track.sport_type)}</span>
+        {" · "}{fmtDistance(track.distance_km)}
+        {" · "}{fmtElevation(track.elevation_gain_m)}
+        {time && ` · ${time}`}
+      </p>
+      <p className="route-summary-name">{track.name}</p>
+      <ElevationProfileInteractive
+        elevation={track.elevation}
+        onHoverProgress={onHoverProgress}
+      />
+      <div className="route-summary-actions">
+        <a
+          className="route-btn"
+          href={track.gpx_url}
+          download
+          onClick={(e) => e.stopPropagation()}
+          title="Download GPX"
+        >
+          <Download size={14} aria-hidden /> GPX
+        </a>
+        <button className="route-btn" onClick={copyLink} title="Copy link">
+          <Copy size={14} aria-hidden />
+        </button>
+        <button className="route-btn" onClick={onClose} title="Close">
+          <X size={14} aria-hidden />
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -244,7 +383,7 @@ function RouteEntry({
           onClick={(e) => { e.stopPropagation(); onShowOnMap(); }}
           title="Show on map"
         >
-          <Map size={14} aria-hidden /> map
+          <MapIcon size={14} aria-hidden /> map
         </button>
       </div>
     </article>
@@ -256,11 +395,11 @@ function RouteEntry({
 function RouteMap({
   tracks,
   activeIds,
-  onBackToList,
+  onClose,
 }: {
   tracks: Track[];
   activeIds: Set<string>;
-  onBackToList: () => void;
+  onClose: () => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -268,6 +407,10 @@ function RouteMap({
   const activeIdsRef = useRef(activeIds);
   const loadedRef = useRef(new Set<string>());
   const pendingRef = useRef(new Set<string>());
+  const hoverMarkerRef = useRef<any>(null);
+
+  const [loadedCoords, setLoadedCoords] = useState<Map<string, [number, number][]>>(new Map());
+  const [hoverProgress, setHoverProgress] = useState<number | null>(null);
 
   activeIdsRef.current = activeIds;
 
@@ -311,6 +454,11 @@ function RouteMap({
           paint: { "line-color": "#00d4ff", "line-width": 2.5 },
         });
         loadedRef.current.add(track.id);
+        setLoadedCoords((prev) => {
+          const next = new Map(prev);
+          next.set(track.id, coords);
+          return next;
+        });
 
         m.fitBounds(
           [
@@ -331,6 +479,11 @@ function RouteMap({
     if (map.getLayer(`route-${id}-line`)) map.removeLayer(`route-${id}-line`);
     if (map.getSource(`route-${id}`)) map.removeSource(`route-${id}`);
     loadedRef.current.delete(id);
+    setLoadedCoords((prev) => {
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
   }, []);
 
   const syncTracks = useCallback(() => {
@@ -369,6 +522,8 @@ function RouteMap({
     });
 
     return () => {
+      hoverMarkerRef.current?.remove();
+      hoverMarkerRef.current = null;
       map.remove();
       mapInstanceRef.current = null;
       mapLoadedRef.current = false;
@@ -382,38 +537,50 @@ function RouteMap({
     syncTracks();
   }, [activeIds, syncTracks]);
 
-  const zoomToActive = useCallback(() => {
+  // Move hover marker when progress changes
+  useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !mapLoadedRef.current) return;
-    const active = activeIdsRef.current;
-    const subset = active.size > 0 ? tracks.filter((t) => active.has(t.id)) : tracks;
-    const bbox = calcOverallBbox(subset);
-    if (bbox) map.fitBounds(bbox, { padding: 48, duration: 600 });
-  }, [tracks]);
 
+    const singleId = activeIds.size === 1 ? [...activeIds][0] : null;
+    const coords = singleId ? loadedCoords.get(singleId) : null;
+
+    if (hoverProgress === null || !coords || coords.length === 0) {
+      hoverMarkerRef.current?.remove();
+      return;
+    }
+
+    const idx = Math.min(Math.round(hoverProgress * (coords.length - 1)), coords.length - 1);
+    const [lng, lat] = coords[idx];
+
+    if (!hoverMarkerRef.current) {
+      const el = document.createElement("div");
+      el.className = "route-hover-marker";
+      hoverMarkerRef.current = new (window as any).maplibregl.Marker({ element: el });
+    }
+
+    hoverMarkerRef.current.setLngLat([lng, lat]).addTo(map);
+  }, [hoverProgress, activeIds, loadedCoords]);
+
+  // Deselect active track when it's removed from loadedCoords (marker cleanup)
   useEffect(() => {
-    (mapRef as any).zoomToActive = zoomToActive;
-  }, [zoomToActive]);
+    if (hoverProgress !== null && activeIds.size !== 1) {
+      hoverMarkerRef.current?.remove();
+    }
+  }, [activeIds, hoverProgress]);
+
+  const singleActive = activeIds.size === 1 ? tracks.find((t) => activeIds.has(t.id)) : null;
 
   return (
     <div className="route-map-wrapper">
       <div ref={mapRef} className="route-map-panel" />
-      <div className="route-map-toolbar">
-        <button
-          className="route-btn"
-          onClick={zoomToActive}
-          title="Zoom to active tracks (or all if none selected)"
-        >
-          ⊡ zoom all
-        </button>
-        <button
-          className="route-btn route-map-back-btn"
-          onClick={onBackToList}
-          title="Back to list"
-        >
-          ← list
-        </button>
-      </div>
+      {singleActive && (
+        <RouteSummaryPanel
+          track={singleActive}
+          onClose={onClose}
+          onHoverProgress={setHoverProgress}
+        />
+      )}
     </div>
   );
 }
@@ -455,7 +622,10 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
       <RouteMap
         tracks={tracks}
         activeIds={activeIds}
-        onBackToList={() => setMobileView("list")}
+        onClose={() => {
+          setActiveIds(new Set());
+          setMobileView("list");
+        }}
       />
       <div className="route-journal">
         {tracks.map((track) => (
