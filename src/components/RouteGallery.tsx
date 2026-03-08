@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Download, Copy, Map as MapIcon, X } from "lucide-react";
+import { Download, Copy, Map as MapIcon, X, Zap, Activity, Camera } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -206,6 +206,29 @@ function ElevationProfileInteractive({
   );
 }
 
+// ── ScoreTag ───────────────────────────────────────────────────────────────────
+
+function ScoreTag({ icon: Icon, value, max = 5 }: { icon: React.ElementType; value: number | null; max?: number }) {
+  if (value === null) return null;
+  return (
+    <span className="route-score-tag">
+      <Icon size={11} aria-hidden />
+      {value}/{max}
+    </span>
+  );
+}
+
+function TrackScores({ track }: { track: Track }) {
+  if (track.difficulty === null && track.endurance === null && track.scenic === null) return null;
+  return (
+    <span className="route-scores">
+      <ScoreTag icon={Zap}      value={track.difficulty} />
+      <ScoreTag icon={Activity} value={track.endurance} />
+      <ScoreTag icon={Camera}   value={track.scenic} />
+    </span>
+  );
+}
+
 // ── RouteSummaryPanel ─────────────────────────────────────────────────────────
 
 function RouteSummaryPanel({
@@ -237,6 +260,7 @@ function RouteSummaryPanel({
         {time && ` · ${time}`}
       </p>
       <p className="route-summary-name">{track.name}</p>
+      <TrackScores track={track} />
       <ElevationProfileInteractive
         elevation={track.elevation}
         onHoverProgress={onHoverProgress}
@@ -361,6 +385,7 @@ function RouteEntry({
           {" · "}{fmtElevation(track.elevation_gain_m)}
           {time && ` · ${time}`}
           {date && <span className="route-entry-date"> · {date}</span>}
+          <TrackScores track={track} />
         </p>
       </div>
       <PhotoStrip photos={track.photos} />
