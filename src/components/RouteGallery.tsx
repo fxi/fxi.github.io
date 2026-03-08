@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Download, Copy, Map as MapIcon, X, Zap, Activity, Camera } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
@@ -206,6 +206,25 @@ function ElevationProfileInteractive({
   );
 }
 
+// ── useCopyLink ───────────────────────────────────────────────────────────────
+
+function useCopyLink(id: string) {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const copy = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}?route=${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 1800);
+    }).catch(() => {});
+  }, [id]);
+
+  return { copy, copied };
+}
+
 // ── ScoreTag ───────────────────────────────────────────────────────────────────
 
 function ScoreTag({ icon: Icon, value, max = 5 }: { icon: React.ElementType; value: number | null; max?: number }) {
@@ -241,15 +260,7 @@ function RouteSummaryPanel({
   onHoverProgress: (p: number | null) => void;
 }) {
   const time = fmtTime(track.moving_time_s);
-
-  const copyLink = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const url = `${window.location.origin}${window.location.pathname}?route=${track.id}`;
-      navigator.clipboard.writeText(url).catch(() => {});
-    },
-    [track.id],
-  );
+  const { copy, copied } = useCopyLink(track.id);
 
   return (
     <div className="route-summary-panel">
@@ -275,8 +286,8 @@ function RouteSummaryPanel({
         >
           <Download size={14} aria-hidden /> GPX
         </a>
-        <button className="route-btn" onClick={copyLink} title="Copy link">
-          <Copy size={14} aria-hidden />
+        <button className="route-btn" onClick={copy} title="Copy link">
+          {copied ? "copied!" : <Copy size={14} aria-hidden />}
         </button>
         <button className="route-btn" onClick={onClose} title="Close">
           <X size={14} aria-hidden />
@@ -291,6 +302,14 @@ function RouteSummaryPanel({
 function PhotoStrip({ photos }: { photos: string[] }) {
   const [idx, setIdx] = useState(0);
   const stripRef = useRef<HTMLDivElement>(null);
+  const shuffled = useMemo(() => {
+    const arr = [...photos];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [photos]);
 
   useEffect(() => {
     const strip = stripRef.current;
@@ -308,14 +327,14 @@ function PhotoStrip({ photos }: { photos: string[] }) {
     );
     Array.from(strip.children).forEach((c) => observer.observe(c));
     return () => observer.disconnect();
-  }, [photos.length]);
+  }, [shuffled.length]);
 
   const scrollTo = (i: number) => {
     const child = stripRef.current?.children[i] as HTMLElement;
     child?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   };
 
-  if (photos.length === 0) return null;
+  if (shuffled.length === 0) return null;
 
   return (
     <div
@@ -324,13 +343,13 @@ function PhotoStrip({ photos }: { photos: string[] }) {
       onKeyDown={(e) => e.stopPropagation()}
     >
       <div ref={stripRef} className="route-photo-strip">
-        {photos.map((url, i) => (
+        {shuffled.map((url, i) => (
           <img key={i} src={url} alt="" className="route-photo-img" loading="lazy" />
         ))}
       </div>
-      {photos.length > 1 && (
+      {shuffled.length > 1 && (
         <div className="route-photo-dots">
-          {photos.map((_, i) => (
+          {shuffled.map((_, i) => (
             <button
               key={i}
               className={`route-photo-dot${i === idx ? " route-photo-dot--on" : ""}`}
@@ -359,15 +378,7 @@ function RouteEntry({
 }) {
   const time = fmtTime(track.moving_time_s);
   const date = fmtDate(track.date);
-
-  const copyLink = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const url = `${window.location.origin}${window.location.pathname}?route=${track.id}`;
-      navigator.clipboard.writeText(url).catch(() => {});
-    },
-    [track.id],
-  );
+  const { copy, copied } = useCopyLink(track.id);
 
   return (
     <article className={`route-entry${isActive ? " route-entry--active" : ""}`}>
@@ -400,8 +411,8 @@ function RouteEntry({
         >
           <Download size={14} aria-hidden /> GPX
         </a>
-        <button className="route-btn" onClick={copyLink} title="Copy link">
-          <Copy size={14} aria-hidden />
+        <button className="route-btn" onClick={copy} title="Copy link">
+          {copied ? "copied!" : <Copy size={14} aria-hidden />}
         </button>
         <button
           className="route-btn route-btn--map-toggle"

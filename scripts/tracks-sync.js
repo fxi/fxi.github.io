@@ -30,6 +30,8 @@ const FEATURED_PATH = join(ROOT, "src", "content", "tracks", "featured.yaml");
 const CATALOGUE_PATH = join(ROOT, "src", "data", "tracks.json");
 
 const ELEVATION_PTS = 150; // points stored in tracks.json for elevation sparkline
+const MAX_PHOTOS = 10;    // max photos per track fetched from Strava
+const PHOTO_WIDTH = 1200; // px — 2× retina for ~350–600 px rendered width
 
 // ── env ───────────────────────────────────────────────────────────────────────
 
@@ -246,9 +248,10 @@ async function main() {
         s3Delete(`tracks/${entry.id}_map.webp`), // cleanup legacy
         s3Delete(`tracks/${entry.id}_photo_600.webp`), // legacy single-photo
         s3Delete(`tracks/${entry.id}_photo_1200.webp`), // legacy
-        ...[0, 1, 2].map((i) =>
+        ...Array.from({ length: MAX_PHOTOS }, (_, i) => [
           s3Delete(`tracks/${entry.id}_photo_${i}_600.webp`),
-        ),
+          s3Delete(`tracks/${entry.id}_photo_${i}_1200.webp`),
+        ]).flat(),
       ]);
       console.log(`  ✓ removed ${entry.id}`);
     }
@@ -308,7 +311,7 @@ async function main() {
             `/activities/${id}/photos?photo_sources=true&size=2000`,
             token,
           );
-          const toFetch = stravaPhotos.slice(0, 3);
+          const toFetch = stravaPhotos.slice(0, MAX_PHOTOS);
           console.log(`  Downloading ${toFetch.length} photo(s)…`);
           for (let i = 0; i < toFetch.length; i++) {
             const p = toFetch[i];
@@ -318,17 +321,14 @@ async function main() {
             const pRes = await fetch(photoUrl);
             if (!pRes.ok) continue;
             const raw = Buffer.from(await pRes.arrayBuffer());
-            const buf600 = await sharp(raw)
-              .resize({ width: 600, withoutEnlargement: true })
+            const buf = await sharp(raw)
+              .resize({ width: PHOTO_WIDTH, withoutEnlargement: true })
               .webp({ quality: 85 })
               .withMetadata(false)
               .toBuffer();
-            await s3Put(
-              `tracks/${id}_photo_${i}_600.webp`,
-              buf600,
-              "image/webp",
-            );
-            photoUrls.push(`${publicBase}/tracks/${id}_photo_${i}_600.webp`);
+            const key = `tracks/${id}_photo_${i}_1200.webp`;
+            await s3Put(key, buf, "image/webp");
+            photoUrls.push(`${publicBase}/${key}`);
           }
         }
 
