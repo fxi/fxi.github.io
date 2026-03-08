@@ -11,6 +11,12 @@
   s: 5
   e: 4
 
+- id: "9334015657"
+  name: Val da Camp - Valle di Fraele 
+  d: 5
+  s: 5
+  e: 5
+
 - id: "15310256830"
   name: Aigle Genève 
   d: 5
@@ -29,11 +35,6 @@
   s: 5
   e: 5
 
-- id: "334015657"
-  name: Val da Camp - Valle di Fraele 
-  d: 5
-  s: 5
-  e: 5
 
 - id: "9551253185" 
   name : Genève - Lausanne
