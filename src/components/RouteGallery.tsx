@@ -188,6 +188,9 @@ function ElevationProfileInteractive({
     >
       <path d={areaD} className="route-elev-fill" />
       <path d={lineD} className="route-elev-line" />
+      {/* Static min/max annotations */}
+      <text x={3} y={11} className="route-profile-minmax">{Math.round(maxEle)} m</text>
+      <text x={3} y={H - 3} className="route-profile-minmax">{Math.round(minEle)} m</text>
       {cursorX !== null && (
         <>
           <line
@@ -349,14 +352,17 @@ function PhotoStrip({ photos }: { photos: string[] }) {
       </div>
       {shuffled.length > 1 && (
         <div className="route-photo-dots">
-          {shuffled.map((_, i) => (
-            <button
-              key={i}
-              className={`route-photo-dot${i === idx ? " route-photo-dot--on" : ""}`}
-              onClick={() => scrollTo(i)}
-              aria-label={`Photo ${i + 1}`}
-            />
-          ))}
+          {shuffled.length <= 5
+            ? shuffled.map((_, i) => (
+                <button
+                  key={i}
+                  className={`route-photo-dot${i === idx ? " route-photo-dot--on" : ""}`}
+                  onClick={() => scrollTo(i)}
+                  aria-label={`Photo ${i + 1}`}
+                />
+              ))
+            : null}
+          <span className="route-photo-count">{idx + 1} / {shuffled.length}</span>
         </div>
       )}
     </div>
@@ -447,6 +453,7 @@ function RouteMap({
 
   const [loadedCoords, setLoadedCoords] = useState<Map<string, [number, number][]>>(new Map());
   const [hoverProgress, setHoverProgress] = useState<number | null>(null);
+  const [loadingCount, setLoadingCount] = useState(0);
 
   activeIdsRef.current = activeIds;
 
@@ -454,6 +461,7 @@ function RouteMap({
     async (map: any, track: Track) => {
       if (pendingRef.current.has(track.id) || loadedRef.current.has(track.id)) return;
       pendingRef.current.add(track.id);
+      setLoadingCount((c) => c + 1);
       try {
         const res = await fetch(track.gpx_url);
         if (!res.ok) return;
@@ -505,6 +513,7 @@ function RouteMap({
         );
       } finally {
         pendingRef.current.delete(track.id);
+        setLoadingCount((c) => c - 1);
       }
     },
     [],
@@ -610,6 +619,12 @@ function RouteMap({
   return (
     <div className="route-map-wrapper">
       <div ref={mapRef} className="route-map-panel" />
+      {loadingCount > 0 && (
+        <div className="route-map-loading" aria-live="polite">
+          <div className="route-map-loading-dot" />
+          loading
+        </div>
+      )}
       {singleActive && (
         <RouteSummaryPanel
           track={singleActive}
@@ -626,6 +641,7 @@ function RouteMap({
 export default function RouteGallery({ tracks }: { tracks: Track[] }) {
   const [activeIds, setActiveIds] = useState<Set<string>>(() => new Set());
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [filterSport, setFilterSport] = useState<string | null>(null);
 
   // Init from URL
   useEffect(() => {
@@ -634,6 +650,34 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
       setActiveIds(new Set([id]));
     }
   }, []);
+
+  const sports = useMemo(() => {
+    const set = new Set(tracks.map((t) => t.sport_type));
+    return [...set].sort();
+  }, [tracks]);
+
+  const filteredTracks = useMemo(
+    () => (filterSport ? tracks.filter((t) => t.sport_type === filterSport) : tracks),
+    [tracks, filterSport],
+  );
+
+  // Drop active IDs that got filtered out
+  useEffect(() => {
+    const filteredIds = new Set(filteredTracks.map((t) => t.id));
+    setActiveIds((prev) => {
+      const next = new Set([...prev].filter((id) => filteredIds.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [filteredTracks]);
+
+  const totalKm = useMemo(
+    () => filteredTracks.reduce((s, t) => s + t.distance_km, 0),
+    [filteredTracks],
+  );
+  const totalGain = useMemo(
+    () => filteredTracks.reduce((s, t) => s + t.elevation_gain_m, 0),
+    [filteredTracks],
+  );
 
   const toggleTrack = useCallback((id: string) => {
     setActiveIds((prev) => {
@@ -656,7 +700,7 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
   return (
     <div className={`route-gallery${mobileView === "map" ? " route-gallery--map-view" : ""}`}>
       <RouteMap
-        tracks={tracks}
+        tracks={filteredTracks}
         activeIds={activeIds}
         onClose={() => {
           setActiveIds(new Set());
@@ -664,15 +708,43 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
         }}
       />
       <div className="route-journal">
-        {tracks.map((track) => (
-          <RouteEntry
-            key={track.id}
-            track={track}
-            isActive={activeIds.has(track.id)}
-            onToggle={() => toggleTrack(track.id)}
-            onShowOnMap={() => showOnMap(track.id)}
-          />
-        ))}
+        <div className="route-journal-header">
+          <p className="route-stats-header">
+            {filteredTracks.length} route{filteredTracks.length !== 1 ? "s" : ""}
+            {" · "}{Math.round(totalKm).toLocaleString()} km
+            {" · "}+{Math.round(totalGain).toLocaleString()} m
+          </p>
+          {sports.length > 1 && (
+            <div className="route-filter-pills">
+              <button
+                className={`route-filter-pill${filterSport === null ? " route-filter-pill--active" : ""}`}
+                onClick={() => setFilterSport(null)}
+              >
+                All
+              </button>
+              {sports.map((s) => (
+                <button
+                  key={s}
+                  className={`route-filter-pill${filterSport === s ? " route-filter-pill--active" : ""}`}
+                  onClick={() => setFilterSport(s === filterSport ? null : s)}
+                >
+                  {sportLabel(s)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="route-journal-list">
+          {filteredTracks.map((track) => (
+            <RouteEntry
+              key={track.id}
+              track={track}
+              isActive={activeIds.has(track.id)}
+              onToggle={() => toggleTrack(track.id)}
+              onShowOnMap={() => showOnMap(track.id)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
