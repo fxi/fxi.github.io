@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Download, Copy } from "lucide-react";
+import { Download, Copy, Map } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -46,18 +46,20 @@ function sportLabel(type: string): string {
   return SPORT_LABELS[type] ?? type.replace(/([A-Z])/g, " $1").trim();
 }
 
-function fmtDistance(km: number) {
-  return `${km.toFixed(1)} km`;
-}
-function fmtElevation(m: number) {
-  return `+${m.toLocaleString()} m`;
-}
+function fmtDistance(km: number) { return `${km.toFixed(1)} km`; }
+function fmtElevation(m: number) { return `+${m.toLocaleString()} m`; }
 function fmtTime(s: number): string | null {
   if (!s) return null;
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   if (h === 0) return `${m} min`;
   return m >= 6 ? `~${h}.${Math.round(m / 6)} h` : `~${h} h`;
+}
+function fmtDate(iso: string): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 function calcOverallBbox(tracks: Track[]): [[number, number], [number, number]] | null {
@@ -95,9 +97,9 @@ function ElevationSparkline({ elevation }: { elevation: number[] }) {
   const maxEle = Math.max(...elevation);
   const range = maxEle - minEle || 1;
 
-  const W = 240;
-  const H = 40;
-  const padY = 2;
+  const W = 300;
+  const H = 56;
+  const padY = 4;
 
   const pts = elevation.map((ele, i) => {
     const x = (i / (elevation.length - 1)) * W;
@@ -112,7 +114,7 @@ function ElevationSparkline({ elevation }: { elevation: number[] }) {
     <svg
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
-      className="route-item-elevation"
+      className="route-entry-elevation"
       aria-hidden="true"
     >
       <path d={areaD} className="route-elev-fill" />
@@ -154,17 +156,17 @@ function PhotoStrip({ photos }: { photos: string[] }) {
 
   return (
     <div
-      className="route-item-photos-wrap"
+      className="route-photo-wrap"
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <div ref={stripRef} className="route-item-photos">
+      <div ref={stripRef} className="route-photo-strip">
         {photos.map((url, i) => (
-          <img key={i} src={url} alt="" className="route-item-photo" loading="lazy" />
+          <img key={i} src={url} alt="" className="route-photo-img" loading="lazy" />
         ))}
       </div>
       {photos.length > 1 && (
-        <div className="route-item-photo-dots">
+        <div className="route-photo-dots">
           {photos.map((_, i) => (
             <button
               key={i}
@@ -179,18 +181,21 @@ function PhotoStrip({ photos }: { photos: string[] }) {
   );
 }
 
-// ── RouteItem ─────────────────────────────────────────────────────────────────
+// ── RouteEntry ────────────────────────────────────────────────────────────────
 
-function RouteItem({
+function RouteEntry({
   track,
   isActive,
   onToggle,
+  onShowOnMap,
 }: {
   track: Track;
   isActive: boolean;
   onToggle: () => void;
+  onShowOnMap: () => void;
 }) {
   const time = fmtTime(track.moving_time_s);
+  const date = fmtDate(track.date);
 
   const copyLink = useCallback(
     (e: React.MouseEvent) => {
@@ -202,27 +207,26 @@ function RouteItem({
   );
 
   return (
-    <div
-      className={`route-item${isActive ? " route-item--active" : ""}`}
-      onClick={onToggle}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onToggle();
-      }}
-    >
-      <div className="route-item-name">{track.name}</div>
+    <article className={`route-entry${isActive ? " route-entry--active" : ""}`}>
+      <div
+        className="route-entry-header"
+        onClick={onToggle}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onToggle(); }}
+      >
+        <h2 className="route-entry-title">{track.name}</h2>
+        <p className="route-entry-meta">
+          <span className="route-sport-tag">{sportLabel(track.sport_type)}</span>
+          {" · "}{fmtDistance(track.distance_km)}
+          {" · "}{fmtElevation(track.elevation_gain_m)}
+          {time && ` · ${time}`}
+          {date && <span className="route-entry-date"> · {date}</span>}
+        </p>
+      </div>
       <PhotoStrip photos={track.photos} />
       <ElevationSparkline elevation={track.elevation} />
-      <div className="route-item-stats">
-        <span className="route-sport-tag">{sportLabel(track.sport_type)}</span>
-        {" · "}
-        {fmtDistance(track.distance_km)}
-        {" · "}
-        {fmtElevation(track.elevation_gain_m)}
-        {time && ` · ${time}`}
-      </div>
-      <div className="route-item-actions">
+      <div className="route-entry-actions">
         <a
           className="route-btn"
           href={track.gpx_url}
@@ -235,8 +239,15 @@ function RouteItem({
         <button className="route-btn" onClick={copyLink} title="Copy link">
           <Copy size={14} aria-hidden />
         </button>
+        <button
+          className="route-btn route-btn--map-toggle"
+          onClick={(e) => { e.stopPropagation(); onShowOnMap(); }}
+          title="Show on map"
+        >
+          <Map size={14} aria-hidden /> map
+        </button>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -245,15 +256,11 @@ function RouteItem({
 function RouteMap({
   tracks,
   activeIds,
-  onZoomAll,
-  listOpen,
-  onToggleList,
+  onBackToList,
 }: {
   tracks: Track[];
   activeIds: Set<string>;
-  onZoomAll: () => void;
-  listOpen: boolean;
-  onToggleList: () => void;
+  onBackToList: () => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -262,7 +269,6 @@ function RouteMap({
   const loadedRef = useRef(new Set<string>());
   const pendingRef = useRef(new Set<string>());
 
-  // Keep ref current so async callbacks see latest state
   activeIdsRef.current = activeIds;
 
   const addTrackToMap = useCallback(
@@ -274,7 +280,6 @@ function RouteMap({
         if (!res.ok) return;
         const coords = parseGpxCoords(await res.text());
         if (coords.length < 2) return;
-        // Bail if track was deselected while fetching, or map was unmounted
         if (!activeIdsRef.current.has(track.id) || !mapInstanceRef.current) return;
 
         const m = mapInstanceRef.current;
@@ -343,7 +348,6 @@ function RouteMap({
     }
   }, [tracks, addTrackToMap, removeTrackFromMap]);
 
-  // Mount map once
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -374,24 +378,19 @@ function RouteMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync layers whenever activeIds changes
   useEffect(() => {
     syncTracks();
   }, [activeIds, syncTracks]);
 
-  // Expose zoom-to-all for parent toolbar button
   const zoomToActive = useCallback(() => {
     const map = mapInstanceRef.current;
     if (!map || !mapLoadedRef.current) return;
     const active = activeIdsRef.current;
-    const subset = active.size > 0
-      ? tracks.filter((t) => active.has(t.id))
-      : tracks;
+    const subset = active.size > 0 ? tracks.filter((t) => active.has(t.id)) : tracks;
     const bbox = calcOverallBbox(subset);
     if (bbox) map.fitBounds(bbox, { padding: 48, duration: 600 });
   }, [tracks]);
 
-  // Register callback via ref so toolbar can call it
   useEffect(() => {
     (mapRef as any).zoomToActive = zoomToActive;
   }, [zoomToActive]);
@@ -408,11 +407,11 @@ function RouteMap({
           ⊡ zoom all
         </button>
         <button
-          className="route-btn"
-          onClick={onToggleList}
-          title={listOpen ? "Hide route list" : "Show route list"}
+          className="route-btn route-map-back-btn"
+          onClick={onBackToList}
+          title="Back to list"
         >
-          {listOpen ? "‹ hide" : "≡ routes"}
+          ← list
         </button>
       </div>
     </div>
@@ -423,7 +422,7 @@ function RouteMap({
 
 export default function RouteGallery({ tracks }: { tracks: Track[] }) {
   const [activeIds, setActiveIds] = useState<Set<string>>(() => new Set());
-  const [listOpen, setListOpen] = useState(true);
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
 
   // Init from URL
   useEffect(() => {
@@ -436,13 +435,15 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
   const toggleTrack = useCallback((id: string) => {
     setActiveIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
+  }, []);
+
+  const showOnMap = useCallback((id: string) => {
+    setActiveIds(new Set([id]));
+    setMobileView("map");
   }, []);
 
   if (tracks.length === 0) {
@@ -450,15 +451,20 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
   }
 
   return (
-    <div className="route-gallery">
-      <RouteMap tracks={tracks} activeIds={activeIds} onZoomAll={() => {}} listOpen={listOpen} onToggleList={() => setListOpen((v) => !v)} />
-      <div className={`route-list-panel${listOpen ? "" : " route-list-panel--closed"}`}>
+    <div className={`route-gallery${mobileView === "map" ? " route-gallery--map-view" : ""}`}>
+      <RouteMap
+        tracks={tracks}
+        activeIds={activeIds}
+        onBackToList={() => setMobileView("list")}
+      />
+      <div className="route-journal">
         {tracks.map((track) => (
-          <RouteItem
+          <RouteEntry
             key={track.id}
             track={track}
             isActive={activeIds.has(track.id)}
             onToggle={() => toggleTrack(track.id)}
+            onShowOnMap={() => showOnMap(track.id)}
           />
         ))}
       </div>
