@@ -590,8 +590,10 @@ function RouteEntry({
         </p>
       </div>
       {track.description && <RouteDescription text={track.description} />}
-      <PhotoStrip photos={track.photos} />
-      <ElevationSparkline elevation={track.elevation} />
+      <div className="route-photo-container">
+        <PhotoStrip photos={track.photos} />
+        <ElevationSparkline elevation={track.elevation} />
+      </div>
       <div
         className="route-entry-actions"
         onClick={(e) => e.stopPropagation()}

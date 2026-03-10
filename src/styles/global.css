@@ -1220,11 +1220,21 @@ body.home {
   letter-spacing: 0;
 }
 
+/* Square photo + elevation overlay */
+.route-photo-container {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
 /* Photo strip */
 .route-photo-wrap {
-  position: relative;
-  margin-bottom: 2px;
-  border-radius: 4px;
+  position: absolute;
+  inset: 0;
+  margin-bottom: 0;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -1235,12 +1245,13 @@ body.home {
   scroll-behavior: smooth;
   scrollbar-width: none;
   gap: 2px;
+  height: 100%;
 }
 .route-photo-strip::-webkit-scrollbar { display: none; }
 
 .route-photo-img {
   flex: 0 0 100%;
-  height: 350px;
+  height: 100%;
   object-fit: cover;
   scroll-snap-align: start;
 }
@@ -1251,7 +1262,7 @@ body.home {
 
 .route-photo-dots {
   position: absolute;
-  bottom: 6px;
+  bottom: 58px;
   left: 0;
   right: 0;
   display: flex;
@@ -1284,20 +1295,26 @@ body.home {
 
 /* Elevation chart */
 .route-entry-elevation {
-  height: 50px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
+  height: 50px;
   display: block;
-  margin: 0 0 1rem;
+  margin: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .route-elev-fill {
-  fill: color-mix(in srgb, var(--fg) 8%, transparent);
+  fill: rgba(0, 212, 255, 0.12);
 }
 
 .route-elev-line {
   fill: none;
-  stroke: var(--fg-muted);
-  stroke-width: 1.5;
+  stroke: #00d4ff;
+  stroke-width: 2;
   vector-effect: non-scaling-stroke;
 }
 
@@ -1406,9 +1423,6 @@ body.home {
     font-size: 1.25rem;
   }
 
-  .route-photo-img {
-    height: 180px;
-  }
 }
 
 /* ── Route map markers ──────────────────────────────────────────────────────── */
