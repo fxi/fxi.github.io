@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { Download, Copy, X, Zap, Activity, Camera, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Download, Copy, X, Zap, Activity, Camera, ChevronLeft, ChevronRight, ExternalLink, Map as MapIcon } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -599,6 +599,9 @@ function RouteEntry({
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
+        <button className="route-btn" onClick={onShowOnMap} title="Show on map">
+          <MapIcon size={14} aria-hidden /> Map
+        </button>
         <a
           className="route-btn"
           href={track.gpx_url}
