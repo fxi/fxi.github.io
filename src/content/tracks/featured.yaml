@@ -5,6 +5,31 @@
 # s: scenic      1–5
 # e: endurance   1–5
 
+
+- id: "2708304326"
+  name: Wildstrubelhütte
+  d: 5
+  s: 5
+  e: 4
+
+- id: "12298974297"
+  name: Col de Crozet
+  d: 4
+  s: 5
+  e: 4
+
+- id : "4572671690"
+  name: Voirons Ultime
+  d: 4
+  s: 5
+  e: 4
+
+- id: "9127242762"
+  name: Gravelus Salevensis
+  d: 3
+  s: 4
+  e: 3
+
 - id: "9314310309"
   name: Scaletta Pass 
   d: 5
@@ -16,6 +41,7 @@
   d: 5
   s: 5
   e: 5
+
 
 - id: "15310256830"
   name: Aigle Genève 
@@ -65,6 +91,12 @@
   name : "Martigny Genève" 
   d: 5
   e: 4
+  s: 5
+
+- id: "7599195604"
+  name: Berne Montreux
+  d: 3
+  e: 5
   s: 5
 
 - id: "3888943962"
