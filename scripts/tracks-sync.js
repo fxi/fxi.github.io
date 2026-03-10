@@ -304,6 +304,21 @@ async function main() {
           Math.round(p[2]),
         );
 
+        const first_point = fullPoints.length > 0
+          ? [fullPoints[0][0], fullPoints[0][1]]
+          : null;
+        const last_point = fullPoints.length > 0
+          ? [fullPoints[fullPoints.length - 1][0], fullPoints[fullPoints.length - 1][1]]
+          : null;
+
+        const highIdx = fullPoints.reduce(
+          (best, p, i) => (p[2] > fullPoints[best][2] ? i : best),
+          0,
+        );
+        const high_point = fullPoints.length > 0
+          ? [fullPoints[highIdx][0], fullPoints[highIdx][1]]
+          : null;
+
         // Activity photos — up to 3
         const photoUrls = [];
         if ((activity.total_photo_count ?? 0) > 0) {
@@ -358,6 +373,9 @@ async function main() {
           strava_url: `https://www.strava.com/activities/${id}`,
           bbox: calcBbox(fullPoints),
           elevation,
+          first_point,
+          last_point,
+          high_point,
         });
 
         console.log(`  ✓ done`);

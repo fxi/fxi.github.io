@@ -20,6 +20,9 @@ export interface Track {
   gpx_url: string;
   bbox: [number, number, number, number];
   elevation: number[];
+  first_point: [number, number] | null;
+  last_point: [number, number] | null;
+  high_point: [number, number] | null;
   strava_url?: string;
   description?: string;
 }
@@ -89,6 +92,51 @@ function parseGpxCoords(gpxText: string): [number, number][] {
     if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
   });
   return coords;
+}
+
+function distMeters([lon1, lat1]: [number, number], [lon2, lat2]: [number, number]): number {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function clusterByFirstPoint(
+  tracks: Track[],
+  thresholdM = 5000
+): { centroid: [number, number]; tracks: Track[] }[] {
+  const clusters: { centroid: [number, number]; tracks: Track[] }[] = [];
+  const assigned = new Set<string>();
+
+  for (const track of tracks) {
+    if (assigned.has(track.id) || !track.first_point) continue;
+    const seed = track.first_point;
+    const group = [track];
+    assigned.add(track.id);
+
+    for (const other of tracks) {
+      if (assigned.has(other.id) || !other.first_point) continue;
+      if (distMeters(seed, other.first_point) < thresholdM) {
+        group.push(other);
+        assigned.add(other.id);
+      }
+    }
+
+    const lons = group.map((t) => t.first_point![0]);
+    const lats = group.map((t) => t.first_point![1]);
+    const centroid: [number, number] = [
+      lons.reduce((a, b) => a + b, 0) / lons.length,
+      lats.reduce((a, b) => a + b, 0) / lats.length,
+    ];
+
+    clusters.push({ centroid, tracks: group });
+  }
+  return clusters;
 }
 
 // ── ElevationSparkline ────────────────────────────────────────────────────────
@@ -582,10 +630,12 @@ function RouteMap({
   tracks,
   activeIds,
   onClose,
+  onToggleTrack,
 }: {
   tracks: Track[];
   activeIds: Set<string>;
   onClose: () => void;
+  onToggleTrack: (id: string) => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -594,6 +644,12 @@ function RouteMap({
   const loadedRef = useRef(new Set<string>());
   const pendingRef = useRef(new Set<string>());
   const hoverMarkerRef = useRef<any>(null);
+  const markersRef = useRef<Map<string, {
+    startEl: HTMLElement;
+    labelEl: HTMLElement;
+    endEl: HTMLElement;
+    summaryEl: HTMLButtonElement;
+  }>>(new Map());
 
   const [loadedCoords, setLoadedCoords] = useState<Map<string, [number, number][]>>(new Map());
   const [hoverProgress, setHoverProgress] = useState<number | null>(null);
@@ -713,11 +769,103 @@ function RouteMap({
     map.on("load", () => {
       mapLoadedRef.current = true;
       syncTracks();
+
+      const mgl = (window as any).maplibregl;
+
+      // Pass 1: per-track start/end dots
+      const tempDots = new Map<string, { startEl: HTMLElement; endEl: HTMLElement }>();
+      for (const track of tracks) {
+        if (!track.first_point) continue;
+
+        const startEl = document.createElement("button");
+        startEl.className = "route-marker-dot";
+        startEl.setAttribute("aria-label", `Start of ${track.name}`);
+        startEl.onclick = () => onToggleTrack(track.id);
+        new mgl.Marker({ element: startEl, anchor: "center" })
+          .setLngLat(track.first_point)
+          .addTo(map);
+
+        const endEl = document.createElement("button");
+        endEl.className = "route-marker-dot";
+        endEl.setAttribute("aria-label", `End of ${track.name}`);
+        endEl.onclick = () => onToggleTrack(track.id);
+        new mgl.Marker({ element: endEl, anchor: "center" })
+          .setLngLat(track.last_point ?? track.first_point)
+          .addTo(map);
+
+        tempDots.set(track.id, { startEl, endEl });
+      }
+
+      // Pass 2: clustered trailhead labels
+      const clusters = clusterByFirstPoint(tracks);
+      for (const { centroid, tracks: group } of clusters) {
+        if (group.length === 1) {
+          // Solo: plain label
+          const track = group[0];
+          const { startEl, endEl } = tempDots.get(track.id)!;
+          const labelEl = document.createElement("button");
+          labelEl.className = "route-marker-label";
+          labelEl.textContent = track.name;
+          labelEl.onclick = () => onToggleTrack(track.id);
+          new mgl.Marker({ element: labelEl, anchor: "bottom" })
+            .setLngLat(centroid)
+            .addTo(map);
+          markersRef.current.set(track.id, { startEl, labelEl, endEl, summaryEl: labelEl as unknown as HTMLButtonElement });
+          continue;
+        }
+
+        // Multi: pancake stack widget
+        const stackEl = document.createElement("div");
+        stackEl.className = "route-marker-stack";
+
+        const deckEl = document.createElement("div");
+        deckEl.className = "route-marker-stack__deck";
+
+        const defaultLabel = `${group.length} routes`;
+        const summaryEl = document.createElement("button");
+        summaryEl.className = "route-marker-stack__summary";
+        summaryEl.textContent = defaultLabel;
+        summaryEl.dataset.default = defaultLabel;
+        summaryEl.onclick = (e) => {
+          e.stopPropagation();
+          stackEl.classList.toggle("route-marker-stack--open");
+        };
+        deckEl.appendChild(summaryEl);
+        stackEl.appendChild(deckEl);
+
+        const listEl = document.createElement("div");
+        listEl.className = "route-marker-stack__list";
+
+        for (const track of group) {
+          const { startEl, endEl } = tempDots.get(track.id)!;
+          const labelEl = document.createElement("button");
+          labelEl.className = "route-marker-label";
+          labelEl.textContent = track.name;
+          labelEl.onclick = (e) => {
+            e.stopPropagation();
+            onToggleTrack(track.id);
+            stackEl.classList.remove("route-marker-stack--open");
+          };
+          listEl.appendChild(labelEl);
+          markersRef.current.set(track.id, { startEl, labelEl, endEl, summaryEl });
+        }
+
+        stackEl.appendChild(listEl);
+        new mgl.Marker({ element: stackEl, anchor: "bottom" })
+          .setLngLat(centroid)
+          .addTo(map);
+      }
     });
 
     return () => {
       hoverMarkerRef.current?.remove();
       hoverMarkerRef.current = null;
+      markersRef.current.forEach(({ startEl, labelEl, endEl }) => {
+        startEl.closest(".maplibregl-marker")?.remove();
+        labelEl.closest(".maplibregl-marker")?.remove();
+        endEl.closest(".maplibregl-marker")?.remove();
+      });
+      markersRef.current.clear();
       map.remove();
       mapInstanceRef.current = null;
       mapLoadedRef.current = false;
@@ -763,6 +911,36 @@ function RouteMap({
       hoverMarkerRef.current?.remove();
     }
   }, [activeIds, hoverProgress]);
+
+  useEffect(() => {
+    const summaryActiveName = new Map<HTMLButtonElement, string>();
+
+    markersRef.current.forEach(({ startEl, labelEl, endEl, summaryEl }, id) => {
+      const on = activeIds.has(id);
+      startEl.classList.toggle("route-marker-dot--active", on);
+      labelEl.classList.toggle("route-marker-label--active", on);
+      endEl.classList.toggle("route-marker-dot--active", on);
+
+      if (on && summaryEl !== (labelEl as unknown as HTMLButtonElement)) {
+        summaryActiveName.set(summaryEl, tracks.find((t) => t.id === id)?.name ?? "");
+      }
+    });
+
+    const allSummaries = new Set<HTMLButtonElement>();
+    markersRef.current.forEach(({ summaryEl, labelEl }) => {
+      if (summaryEl !== (labelEl as unknown as HTMLButtonElement)) allSummaries.add(summaryEl);
+    });
+
+    allSummaries.forEach((summaryEl) => {
+      const activeName = summaryActiveName.get(summaryEl);
+      if (activeName) {
+        summaryEl.textContent = activeName;
+        summaryEl.closest(".route-marker-stack")?.classList.remove("route-marker-stack--open");
+      } else {
+        summaryEl.textContent = summaryEl.dataset.default ?? "";
+      }
+    });
+  }, [activeIds, tracks]);
 
   const singleActive = activeIds.size === 1 ? tracks.find((t) => activeIds.has(t.id)) : null;
 
@@ -847,6 +1025,7 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
           setActiveIds(new Set());
           setMobileView("list");
         }}
+        onToggleTrack={showOnMap}
       />
       <div className="route-journal">
         <div className="route-journal-header">

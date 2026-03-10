@@ -1410,3 +1410,133 @@ body.home {
     height: 180px;
   }
 }
+
+/* ── Route map markers ──────────────────────────────────────────────────────── */
+
+.route-marker-label {
+  background: rgba(20, 20, 30, 0.82);
+  color: #c8d8e8;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s, color 0.15s;
+  pointer-events: all;
+}
+.route-marker-label:hover,
+.route-marker-label--active {
+  background: #00d4ff;
+  color: #0a0e14;
+  border-color: #00d4ff;
+}
+
+/* Pancake stack widget */
+.route-marker-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.route-marker-stack__deck {
+  position: relative;
+  padding-bottom: 5px;
+  pointer-events: all;
+}
+
+.route-marker-stack__deck::before,
+.route-marker-stack__deck::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.route-marker-stack__deck::before {
+  left: 3px; right: 3px;
+  bottom: 3px;
+  background: rgba(20, 20, 30, 0.72);
+  z-index: 0;
+}
+.route-marker-stack__deck::after {
+  left: 6px; right: 6px;
+  bottom: 1px;
+  background: rgba(20, 20, 30, 0.5);
+  z-index: -1;
+}
+
+.route-marker-stack__summary {
+  position: relative;
+  z-index: 1;
+  background: rgba(20, 20, 30, 0.82);
+  color: #c8d8e8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s, color 0.15s;
+}
+.route-marker-stack__summary:hover {
+  background: rgba(40, 50, 70, 0.92);
+}
+.route-marker-stack__summary::after {
+  content: ' ▾';
+  font-size: 9px;
+  opacity: 0.6;
+}
+.route-marker-stack--open .route-marker-stack__summary::after {
+  content: ' ▴';
+}
+
+.route-marker-stack--open .route-marker-stack__deck {
+  padding-bottom: 0;
+}
+.route-marker-stack--open .route-marker-stack__deck::before,
+.route-marker-stack--open .route-marker-stack__deck::after {
+  display: none;
+}
+
+.route-marker-stack__list {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+  max-height: 180px;
+  overflow-y: auto;
+  pointer-events: all;
+}
+.route-marker-stack--open .route-marker-stack__list {
+  display: flex;
+}
+
+.route-marker-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(180, 200, 220, 0.5);
+  border: 1px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+  pointer-events: all;
+}
+.route-marker-dot:hover,
+.route-marker-dot--active {
+  background: #00d4ff;
+  border-color: #00d4ff;
+}
