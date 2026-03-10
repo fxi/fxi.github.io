@@ -3,20 +3,18 @@
     "id": "2708304326",
     "name": "Wildstrubelhütte",
     "date": "2019-09-14",
-    "sport_type": "MountainBikeRide",
+    "sport_type": "Ride",
     "distance_km": 41.6,
     "elevation_gain_m": 1675,
     "moving_time_s": 15072,
     "difficulty": 5,
     "scenic": 5,
     "endurance": 4,
-    "description": "The best enduro route I know.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/2708304326_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/2708304326_photo_1_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/2708304326.gpx",
-    "strava_url": "https://www.strava.com/activities/2708304326",
     "bbox": [
       7.360671,
       46.241091,
@@ -174,7 +172,8 @@
       697,
       660,
       633
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/2708304326"
   },
   {
     "id": "12298974297",
@@ -187,7 +186,6 @@
     "difficulty": 4,
     "scenic": 5,
     "endurance": 4,
-    "description": "A nice Col de Crozet loop from Geneva.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/12298974297_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/12298974297_photo_1_1200.webp",
@@ -201,7 +199,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/12298974297_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/12298974297.gpx",
-    "strava_url": "https://www.strava.com/activities/12298974297",
     "bbox": [
       5.965782,
       46.194282,
@@ -359,188 +356,8 @@
       412,
       424,
       414
-    ]
-  },
-  {
-    "id": "14572671690",
-    "name": "Voirons Ultime",
-    "date": "2025-05-23",
-    "sport_type": "GravelRide",
-    "distance_km": 65.2,
-    "elevation_gain_m": 1329,
-    "moving_time_s": 11043,
-    "difficulty": 4,
-    "scenic": 5,
-    "endurance": 4,
-    "description": "Gravel on the Voirons. Don't deviate unless you enjoy pushing your bike — downhill.",
-    "photos": [
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_0_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_1_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_2_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_3_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_4_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690_photo_5_1200.webp"
     ],
-    "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/14572671690.gpx",
-    "strava_url": "https://www.strava.com/activities/14572671690",
-    "bbox": [
-      6.184837,
-      46.154629,
-      6.363901,
-      46.241998
-    ],
-    "elevation": [
-      414,
-      420,
-      427,
-      426,
-      429,
-      430,
-      428,
-      432,
-      434,
-      435,
-      447,
-      455,
-      468,
-      482,
-      478,
-      488,
-      497,
-      504,
-      506,
-      506,
-      511,
-      511,
-      513,
-      514,
-      518,
-      517,
-      537,
-      554,
-      591,
-      611,
-      632,
-      649,
-      670,
-      690,
-      707,
-      732,
-      756,
-      778,
-      799,
-      822,
-      844,
-      864,
-      888,
-      909,
-      924,
-      936,
-      959,
-      970,
-      975,
-      993,
-      1013,
-      1032,
-      1051,
-      1072,
-      1093,
-      1113,
-      1132,
-      1148,
-      1166,
-      1182,
-      1195,
-      1207,
-      1230,
-      1254,
-      1271,
-      1289,
-      1308,
-      1328,
-      1347,
-      1367,
-      1391,
-      1412,
-      1433,
-      1435,
-      1456,
-      1472,
-      1481,
-      1479,
-      1446,
-      1417,
-      1397,
-      1412,
-      1427,
-      1442,
-      1404,
-      1380,
-      1372,
-      1351,
-      1340,
-      1325,
-      1315,
-      1314,
-      1284,
-      1237,
-      1189,
-      1165,
-      1171,
-      1162,
-      1153,
-      1085,
-      984,
-      876,
-      773,
-      671,
-      588,
-      545,
-      549,
-      541,
-      534,
-      543,
-      543,
-      510,
-      509,
-      505,
-      523,
-      525,
-      518,
-      518,
-      515,
-      517,
-      519,
-      509,
-      482,
-      480,
-      480,
-      467,
-      449,
-      449,
-      442,
-      412,
-      417,
-      412,
-      409,
-      407,
-      408,
-      405,
-      403,
-      407,
-      403,
-      400,
-      397,
-      397,
-      397,
-      399,
-      398,
-      412,
-      404,
-      405,
-      406,
-      420
-    ]
+    "strava_url": "https://www.strava.com/activities/12298974297"
   },
   {
     "id": "9127242762",
@@ -553,13 +370,11 @@
     "difficulty": 3,
     "scenic": 4,
     "endurance": 3,
-    "description": "An unusual gravel ride on the Salève, from the south. Some report having pushed their bike above the Sappey; others set a KOM. Legends.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9127242762_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9127242762_photo_1_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9127242762.gpx",
-    "strava_url": "https://www.strava.com/activities/9127242762",
     "bbox": [
       6.140555,
       46.086701,
@@ -717,7 +532,8 @@
       486,
       488,
       486
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9127242762"
   },
   {
     "id": "9314310309",
@@ -730,7 +546,6 @@
     "difficulty": 5,
     "scenic": 5,
     "endurance": 4,
-    "description": "Better without snow — but snow adds character to an already gnarly alpine gravel ride.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9314310309_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9314310309_photo_1_1200.webp",
@@ -744,7 +559,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9314310309_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9314310309.gpx",
-    "strava_url": "https://www.strava.com/activities/9314310309",
     "bbox": [
       9.556696,
       46.483915,
@@ -902,7 +716,8 @@
       552,
       544,
       539
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9314310309"
   },
   {
     "id": "9334015657",
@@ -915,7 +730,6 @@
     "difficulty": 5,
     "scenic": 5,
     "endurance": 5,
-    "description": "Pure alpine gravel adventure.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9334015657_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9334015657_photo_1_1200.webp",
@@ -929,7 +743,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9334015657_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9334015657.gpx",
-    "strava_url": "https://www.strava.com/activities/9334015657",
     "bbox": [
       9.832285,
       46.387035,
@@ -1087,7 +900,8 @@
       1786,
       1776,
       1749
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9334015657"
   },
   {
     "id": "15310256830",
@@ -1100,7 +914,6 @@
     "difficulty": 5,
     "scenic": 5,
     "endurance": 4,
-    "description": "Pure gold. A perfect ride.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15310256830_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15310256830_photo_1_1200.webp",
@@ -1114,7 +927,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15310256830_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15310256830.gpx",
-    "strava_url": "https://www.strava.com/activities/15310256830",
     "bbox": [
       6.184859,
       46.074017,
@@ -1272,11 +1084,12 @@
       407,
       420,
       422
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/15310256830"
   },
   {
     "id": "9881684764",
-    "name": "Croix Biche Classic",
+    "name": "Croix biche classic",
     "date": "2023-09-19",
     "sport_type": "GravelRide",
     "distance_km": 59.3,
@@ -1285,14 +1098,12 @@
     "difficulty": 2,
     "scenic": 3,
     "endurance": 2,
-    "description": "As close to an alpine ride as you can get without the massive elevation.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9881684764_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9881684764_photo_1_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9881684764_photo_2_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9881684764.gpx",
-    "strava_url": "https://www.strava.com/activities/9881684764",
     "bbox": [
       6.03055,
       46.074757,
@@ -1450,11 +1261,12 @@
       444,
       458,
       458
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9881684764"
   },
   {
     "id": "11668996716",
-    "name": "Tour de la Cuvette",
+    "name": "Tour de la cuvette",
     "date": "2024-06-16",
     "sport_type": "GravelRide",
     "distance_km": 193.6,
@@ -1463,7 +1275,6 @@
     "difficulty": 5,
     "scenic": 5,
     "endurance": 5,
-    "description": "Every Geneva mountain summit in one sitting. See the city from every angle. And suffer.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/11668996716_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/11668996716_photo_1_1200.webp",
@@ -1477,7 +1288,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/11668996716_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/11668996716.gpx",
-    "strava_url": "https://www.strava.com/activities/11668996716",
     "bbox": [
       5.877102,
       46.057228,
@@ -1635,7 +1445,8 @@
       429,
       417,
       419
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/11668996716"
   },
   {
     "id": "9551253185",
@@ -1648,7 +1459,6 @@
     "difficulty": 4,
     "scenic": 4,
     "endurance": 3,
-    "description": "The shortest alpine (Jurassic) gravel route from Geneva to Lausanne.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9551253185_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9551253185_photo_1_1200.webp",
@@ -1662,7 +1472,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9551253185_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9551253185.gpx",
-    "strava_url": "https://www.strava.com/activities/9551253185",
     "bbox": [
       5.977348,
       46.141624,
@@ -1820,11 +1629,12 @@
       429,
       444,
       458
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9551253185"
   },
   {
     "id": "17603551464",
-    "name": "Credoz + Arve",
+    "name": "Credoz + arve",
     "date": "2026-03-04",
     "sport_type": "GravelRide",
     "distance_km": 57.4,
@@ -1833,7 +1643,6 @@
     "difficulty": 2,
     "scenic": 3,
     "endurance": 2,
-    "description": "My favourite after-work ride.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/17603551464_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/17603551464_photo_1_1200.webp",
@@ -1841,7 +1650,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/17603551464_photo_3_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/17603551464.gpx",
-    "strava_url": "https://www.strava.com/activities/17603551464",
     "bbox": [
       6.184843,
       46.076881,
@@ -1999,187 +1807,8 @@
       407,
       406,
       418
-    ]
-  },
-  {
-    "id": "15354777542",
-    "name": "Genève Lyon VTT",
-    "date": "2025-08-05",
-    "sport_type": "GravelRide",
-    "distance_km": 200.3,
-    "elevation_gain_m": 1982,
-    "moving_time_s": 31233,
-    "difficulty": 5,
-    "scenic": 3,
-    "endurance": 5,
-    "description": "\"Asphalt is Lava\" between Geneva and Lyon. You are not ready.",
-    "photos": [
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542_photo_0_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542_photo_1_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542_photo_2_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542_photo_3_1200.webp",
-      "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542_photo_4_1200.webp"
     ],
-    "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/15354777542.gpx",
-    "strava_url": "https://www.strava.com/activities/15354777542",
-    "bbox": [
-      4.953398,
-      45.636856,
-      6.191114,
-      46.194275
-    ],
-    "elevation": [
-      416,
-      403,
-      395,
-      415,
-      424,
-      399,
-      415,
-      423,
-      437,
-      432,
-      457,
-      479,
-      499,
-      498,
-      512,
-      535,
-      557,
-      598,
-      639,
-      657,
-      686,
-      732,
-      776,
-      824,
-      854,
-      839,
-      829,
-      811,
-      745,
-      753,
-      733,
-      673,
-      652,
-      553,
-      491,
-      535,
-      556,
-      471,
-      453,
-      495,
-      544,
-      599,
-      589,
-      581,
-      517,
-      375,
-      327,
-      324,
-      360,
-      404,
-      459,
-      504,
-      492,
-      511,
-      543,
-      541,
-      503,
-      481,
-      502,
-      339,
-      264,
-      263,
-      271,
-      258,
-      257,
-      248,
-      246,
-      244,
-      242,
-      241,
-      237,
-      240,
-      244,
-      237,
-      237,
-      238,
-      236,
-      238,
-      239,
-      248,
-      245,
-      239,
-      232,
-      237,
-      226,
-      225,
-      222,
-      224,
-      224,
-      218,
-      226,
-      219,
-      219,
-      219,
-      219,
-      218,
-      241,
-      215,
-      211,
-      207,
-      210,
-      208,
-      209,
-      207,
-      206,
-      218,
-      211,
-      228,
-      242,
-      248,
-      240,
-      230,
-      237,
-      243,
-      224,
-      223,
-      223,
-      220,
-      223,
-      228,
-      243,
-      251,
-      265,
-      266,
-      256,
-      240,
-      212,
-      210,
-      213,
-      208,
-      206,
-      203,
-      210,
-      216,
-      229,
-      242,
-      242,
-      224,
-      219,
-      208,
-      201,
-      187,
-      190,
-      191,
-      187,
-      186,
-      185,
-      184,
-      189,
-      206
-    ]
+    "strava_url": "https://www.strava.com/activities/17603551464"
   },
   {
     "id": "9988459723",
@@ -2192,7 +1821,6 @@
     "difficulty": 4,
     "scenic": 4,
     "endurance": 5,
-    "description": "A super fast Jura crest ride to my hometown.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9988459723_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9988459723_photo_1_1200.webp",
@@ -2206,7 +1834,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9988459723_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9988459723.gpx",
-    "strava_url": "https://www.strava.com/activities/9988459723",
     "bbox": [
       6.121396,
       46.196703,
@@ -2364,7 +1991,8 @@
       826,
       828,
       818
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9988459723"
   },
   {
     "id": "9420290442",
@@ -2377,7 +2005,6 @@
     "difficulty": 5,
     "scenic": 5,
     "endurance": 4,
-    "description": "Alpine gravel — only attempt after August.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9420290442_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9420290442_photo_1_1200.webp",
@@ -2391,7 +2018,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9420290442_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/9420290442.gpx",
-    "strava_url": "https://www.strava.com/activities/9420290442",
     "bbox": [
       6.199806,
       45.889279,
@@ -2549,7 +2175,8 @@
       442,
       454,
       451
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/9420290442"
   },
   {
     "id": "7599195604",
@@ -2562,7 +2189,6 @@
     "difficulty": 3,
     "scenic": 5,
     "endurance": 5,
-    "description": "Fast track to the best section of the Panorama Bike route.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/7599195604_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/7599195604_photo_1_1200.webp",
@@ -2576,7 +2202,6 @@
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/7599195604_photo_9_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/7599195604.gpx",
-    "strava_url": "https://www.strava.com/activities/7599195604",
     "bbox": [
       6.912513,
       46.425736,
@@ -2734,7 +2359,8 @@
       814,
       559,
       420
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/7599195604"
   },
   {
     "id": "3888943962",
@@ -2747,13 +2373,11 @@
     "difficulty": 1,
     "scenic": 4,
     "endurance": 5,
-    "description": "A great escape during COVID. Might be too busy now.",
     "photos": [
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/3888943962_photo_0_1200.webp",
       "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/3888943962_photo_1_1200.webp"
     ],
     "gpx_url": "https://fxi-io-media.sos-ch-gva-2.exo.io/tracks/3888943962.gpx",
-    "strava_url": "https://www.strava.com/activities/3888943962",
     "bbox": [
       6.018529,
       46.196702,
@@ -2911,6 +2535,7 @@
       401,
       431,
       438
-    ]
+    ],
+    "strava_url": "https://www.strava.com/activities/3888943962"
   }
 ]

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Download, Copy, Map as MapIcon, X, Zap, Activity, Camera } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Download, Copy, X, Zap, Activity, Camera, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 
 const MAPTILER_KEY = import.meta.env.PUBLIC_MAPTILER_KEY ?? "";
 const STYLE_URL = `https://api.maptiler.com/maps/01984598-44d5-70a4-b028-6ce2d6f3027a/style.json?key=${MAPTILER_KEY}`;
@@ -19,6 +20,8 @@ export interface Track {
   gpx_url: string;
   bbox: [number, number, number, number];
   elevation: number[];
+  strava_url?: string;
+  description?: string;
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -171,7 +174,6 @@ function ElevationProfileInteractive({
   const cursorElevIdx = cursor !== null ? Math.round(cursor * (elevation.length - 1)) : null;
   const cursorEle = cursorElevIdx !== null ? elevation[cursorElevIdx] : null;
   const cursorX = cursor !== null ? cursor * W : null;
-  // Keep label inside SVG bounds
   const labelX = cursorX !== null ? Math.min(cursorX + 4, W - 38) : null;
 
   return (
@@ -188,7 +190,6 @@ function ElevationProfileInteractive({
     >
       <path d={areaD} className="route-elev-fill" />
       <path d={lineD} className="route-elev-line" />
-      {/* Static min/max annotations */}
       <text x={3} y={11} className="route-profile-minmax">{Math.round(maxEle)} m</text>
       <text x={3} y={H - 3} className="route-profile-minmax">{Math.round(minEle)} m</text>
       {cursorX !== null && (
@@ -251,6 +252,123 @@ function TrackScores({ track }: { track: Track }) {
   );
 }
 
+// ── RouteDescription ──────────────────────────────────────────────────────────
+
+function RouteDescription({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const needsTrunc = text.length > 120 || text.includes('\n');
+
+  if (!needsTrunc) {
+    return <p className="route-description">{text}</p>;
+  }
+
+  const preview = text.split('\n')[0].slice(0, 120);
+
+  return (
+    <p className="route-description">
+      {expanded ? text : `${preview}…`}
+      {' '}
+      <button
+        className="route-desc-more"
+        onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+      >
+        [{expanded ? 'less' : 'more'}]
+      </button>
+    </p>
+  );
+}
+
+// ── RouteLightbox ─────────────────────────────────────────────────────────────
+
+function RouteLightbox({ photos, initialIdx, onClose }: {
+  photos: string[];
+  initialIdx: number;
+  onClose: () => void;
+}) {
+  const [idx, setIdx] = useState(initialIdx);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    backdropRef.current?.focus();
+  }, []);
+
+  const goNext = useCallback(() => setIdx(i => Math.min(i + 1, photos.length - 1)), [photos.length]);
+  const goPrev = useCallback(() => setIdx(i => Math.max(i - 1, 0)), []);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [goNext, goPrev, onClose]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (dy > 60 && Math.abs(dy) > Math.abs(dx)) { onClose(); return; }
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) goNext(); else goPrev();
+    }
+  }
+
+  if (photos.length === 0) return null;
+
+  return createPortal(
+    <div
+      ref={backdropRef}
+      className="lightbox-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo viewer"
+      tabIndex={-1}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {idx > 0 && (
+        <button
+          className="lightbox-zone lightbox-zone--prev"
+          onClick={(e) => { e.stopPropagation(); goPrev(); }}
+          aria-label="Previous photo"
+        >
+          <span className="lightbox-zone-icon"><ChevronLeft aria-hidden /></span>
+        </button>
+      )}
+      {idx < photos.length - 1 && (
+        <button
+          className="lightbox-zone lightbox-zone--next"
+          onClick={(e) => { e.stopPropagation(); goNext(); }}
+          aria-label="Next photo"
+        >
+          <span className="lightbox-zone-icon"><ChevronRight aria-hidden /></span>
+        </button>
+      )}
+      <img src={photos[idx]} alt="" className="lightbox-img" />
+      {photos.length > 1 && (
+        <div className="lightbox-counter" aria-live="polite">{idx + 1} / {photos.length}</div>
+      )}
+      <button
+        className="lightbox-close"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close"
+      >
+        <X aria-hidden />
+      </button>
+    </div>,
+    document.body
+  );
+}
+
 // ── RouteSummaryPanel ─────────────────────────────────────────────────────────
 
 function RouteSummaryPanel({
@@ -292,6 +410,18 @@ function RouteSummaryPanel({
         <button className="route-btn" onClick={copy} title="Copy link">
           {copied ? "copied!" : <Copy size={14} aria-hidden />}
         </button>
+        {track.strava_url && (
+          <a
+            className="route-btn"
+            href={track.strava_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            title="View on Strava"
+          >
+            <ExternalLink size={14} aria-hidden /> Strava
+          </a>
+        )}
         <button className="route-btn" onClick={onClose} title="Close">
           <X size={14} aria-hidden />
         </button>
@@ -304,15 +434,8 @@ function RouteSummaryPanel({
 
 function PhotoStrip({ photos }: { photos: string[] }) {
   const [idx, setIdx] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const stripRef = useRef<HTMLDivElement>(null);
-  const shuffled = useMemo(() => {
-    const arr = [...photos];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }, [photos]);
 
   useEffect(() => {
     const strip = stripRef.current;
@@ -330,14 +453,14 @@ function PhotoStrip({ photos }: { photos: string[] }) {
     );
     Array.from(strip.children).forEach((c) => observer.observe(c));
     return () => observer.disconnect();
-  }, [shuffled.length]);
+  }, [photos.length]);
 
   const scrollTo = (i: number) => {
     const child = stripRef.current?.children[i] as HTMLElement;
     child?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   };
 
-  if (shuffled.length === 0) return null;
+  if (photos.length === 0) return null;
 
   return (
     <div
@@ -346,14 +469,22 @@ function PhotoStrip({ photos }: { photos: string[] }) {
       onKeyDown={(e) => e.stopPropagation()}
     >
       <div ref={stripRef} className="route-photo-strip">
-        {shuffled.map((url, i) => (
-          <img key={i} src={url} alt="" className="route-photo-img" loading="lazy" />
+        {photos.map((url, i) => (
+          <img
+            key={i}
+            src={url}
+            alt=""
+            className="route-photo-img"
+            loading="lazy"
+            onClick={() => setLightboxIdx(i)}
+            style={{ cursor: "zoom-in" }}
+          />
         ))}
       </div>
-      {shuffled.length > 1 && (
+      {photos.length > 1 && (
         <div className="route-photo-dots">
-          {shuffled.length <= 5
-            ? shuffled.map((_, i) => (
+          {photos.length <= 5
+            ? photos.map((_, i) => (
                 <button
                   key={i}
                   className={`route-photo-dot${i === idx ? " route-photo-dot--on" : ""}`}
@@ -362,8 +493,15 @@ function PhotoStrip({ photos }: { photos: string[] }) {
                 />
               ))
             : null}
-          <span className="route-photo-count">{idx + 1} / {shuffled.length}</span>
+          <span className="route-photo-count">{idx + 1} / {photos.length}</span>
         </div>
+      )}
+      {lightboxIdx !== null && (
+        <RouteLightbox
+          photos={photos}
+          initialIdx={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}
+        />
       )}
     </div>
   );
@@ -374,12 +512,10 @@ function PhotoStrip({ photos }: { photos: string[] }) {
 function RouteEntry({
   track,
   isActive,
-  onToggle,
   onShowOnMap,
 }: {
   track: Track;
   isActive: boolean;
-  onToggle: () => void;
   onShowOnMap: () => void;
 }) {
   const time = fmtTime(track.moving_time_s);
@@ -387,14 +523,14 @@ function RouteEntry({
   const { copy, copied } = useCopyLink(track.id);
 
   return (
-    <article className={`route-entry${isActive ? " route-entry--active" : ""}`}>
-      <div
-        className="route-entry-header"
-        onClick={onToggle}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onToggle(); }}
-      >
+    <article
+      className={`route-entry${isActive ? " route-entry--active" : ""}`}
+      onClick={onShowOnMap}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onShowOnMap(); }}
+    >
+      <div className="route-entry-header">
         <h2 className="route-entry-title">{track.name}</h2>
         <p className="route-entry-meta">
           <span className="route-sport-tag">{sportLabel(track.sport_type)}</span>
@@ -405,14 +541,18 @@ function RouteEntry({
           <TrackScores track={track} />
         </p>
       </div>
+      {track.description && <RouteDescription text={track.description} />}
       <PhotoStrip photos={track.photos} />
       <ElevationSparkline elevation={track.elevation} />
-      <div className="route-entry-actions">
+      <div
+        className="route-entry-actions"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
         <a
           className="route-btn"
           href={track.gpx_url}
           download
-          onClick={(e) => e.stopPropagation()}
           title="Download GPX"
         >
           <Download size={14} aria-hidden /> GPX
@@ -420,13 +560,17 @@ function RouteEntry({
         <button className="route-btn" onClick={copy} title="Copy link">
           {copied ? "copied!" : <Copy size={14} aria-hidden />}
         </button>
-        <button
-          className="route-btn route-btn--map-toggle"
-          onClick={(e) => { e.stopPropagation(); onShowOnMap(); }}
-          title="Show on map"
-        >
-          <MapIcon size={14} aria-hidden /> map
-        </button>
+        {track.strava_url && (
+          <a
+            className="route-btn"
+            href={track.strava_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View on Strava"
+          >
+            <ExternalLink size={14} aria-hidden /> Strava
+          </a>
+        )}
       </div>
     </article>
   );
@@ -549,9 +693,14 @@ function RouteMap({
   useEffect(() => {
     if (!mapRef.current) return;
 
+    const maplibregl = (window as any).maplibregl;
+    if (!maplibregl) {
+      console.error("RouteMap: maplibregl not loaded");
+      return;
+    }
+
     const overallBbox = calcOverallBbox(tracks);
-    const Map = (window as any).maplibregl.Map;
-    const map = new Map({
+    const map = new maplibregl.Map({
       container: mapRef.current,
       style: STYLE_URL,
       ...(overallBbox
@@ -601,13 +750,14 @@ function RouteMap({
     if (!hoverMarkerRef.current) {
       const el = document.createElement("div");
       el.className = "route-hover-marker";
-      hoverMarkerRef.current = new (window as any).maplibregl.Marker({ element: el });
+      const mgl = (window as any).maplibregl;
+      if (!mgl) return;
+      hoverMarkerRef.current = new mgl.Marker({ element: el });
     }
 
     hoverMarkerRef.current.setLngLat([lng, lat]).addTo(map);
   }, [hoverProgress, activeIds, loadedCoords]);
 
-  // Deselect active track when it's removed from loadedCoords (marker cleanup)
   useEffect(() => {
     if (hoverProgress !== null && activeIds.size !== 1) {
       hoverMarkerRef.current?.remove();
@@ -679,15 +829,6 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
     [filteredTracks],
   );
 
-  const toggleTrack = useCallback((id: string) => {
-    setActiveIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
   const showOnMap = useCallback((id: string) => {
     setActiveIds(new Set([id]));
     setMobileView("map");
@@ -740,7 +881,6 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
               key={track.id}
               track={track}
               isActive={activeIds.has(track.id)}
-              onToggle={() => toggleTrack(track.id)}
               onShowOnMap={() => showOnMap(track.id)}
             />
           ))}

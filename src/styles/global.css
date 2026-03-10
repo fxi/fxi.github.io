@@ -1171,6 +1171,12 @@ body.home {
   padding: 2rem 2.5rem 1.5rem;
   border-bottom: 1px solid var(--fg-dim);
   outline: none;
+  cursor: pointer;
+}
+
+.route-entry:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
 }
 
 .route-entry--active {
@@ -1178,7 +1184,6 @@ body.home {
 }
 
 .route-entry-header {
-  cursor: pointer;
   margin-bottom: 1rem;
 }
 
@@ -1294,6 +1299,26 @@ body.home {
   stroke: var(--fg-muted);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
+}
+
+/* Description */
+.route-description {
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  white-space: pre-line;
+}
+
+.route-desc-more {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Actions row */

@@ -311,7 +311,9 @@ async function main() {
             `/activities/${id}/photos?photo_sources=true&size=2000`,
             token,
           );
-          const toFetch = stravaPhotos.slice(0, MAX_PHOTOS);
+          const toFetch = [...stravaPhotos]
+            .sort((a, b) => (b.primary ? 1 : 0) - (a.primary ? 1 : 0))
+            .slice(0, MAX_PHOTOS);
           console.log(`  Downloading ${toFetch.length} photo(s)…`);
           for (let i = 0; i < toFetch.length; i++) {
             const p = toFetch[i];
@@ -343,15 +345,17 @@ async function main() {
             0,
             10,
           ),
-          sport_type: activity.sport_type ?? activity.type,
+          sport_type: feat.type ?? activity.sport_type ?? activity.type,
           distance_km: Math.round((activity.distance / 1000) * 10) / 10,
           elevation_gain_m: Math.round(activity.total_elevation_gain),
           moving_time_s: activity.moving_time ?? 0,
           difficulty: feat.d ?? null,
           scenic: feat.s ?? null,
           endurance: feat.e ?? null,
+          description: feat.desc ?? activity.description ?? null,
           photos: photoUrls,
           gpx_url: `${publicBase}/tracks/${id}.gpx`,
+          strava_url: `https://www.strava.com/activities/${id}`,
           bbox: calcBbox(fullPoints),
           elevation,
         });
@@ -363,7 +367,20 @@ async function main() {
     }
   }
 
-  // 6. Preserve featured.yaml order
+  // 6. Apply featured.yaml overrides to all catalogue entries (handles changes to existing entries)
+  for (const entry of catalogue) {
+    const feat = featuredById.get(entry.id);
+    if (!feat) continue;
+    if (feat.name !== undefined) entry.name = feat.name;
+    if (feat.d !== undefined) entry.difficulty = feat.d;
+    if (feat.s !== undefined) entry.scenic = feat.s;
+    if (feat.e !== undefined) entry.endurance = feat.e;
+    if (feat.type !== undefined) entry.sport_type = feat.type;
+    if (feat.desc !== undefined) entry.description = feat.desc;
+    if (!entry.strava_url) entry.strava_url = `https://www.strava.com/activities/${entry.id}`;
+  }
+
+  // Preserve featured.yaml order
   const order = featured.map((f) => String(f.id));
   catalogue.sort((a, b) => {
     const ia = order.indexOf(a.id);

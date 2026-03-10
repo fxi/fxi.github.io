@@ -1,106 +1,105 @@
 # Routes to feature on /routes
-# id: Strava activity ID
+# id:   Strava activity ID
 # name: override Strava activity name (optional)
-# d: difficulty  1–5
-# s: scenic      1–5
-# e: endurance   1–5
-
-
+# type: override sport type, e.g. MountainBikeRide (optional — useful when Strava uses a generic type like Ride)
+# desc: description override (optional — falls back to Strava activity description)
+# d:    difficulty  1–5
+# s:    scenic      1–5
+# e:    endurance   1–5
 - id: "2708304326"
   name: Wildstrubelhütte
+  desc: The best enduro route I know.
+  type: MountainBikeRide
   d: 5
   s: 5
   e: 4
-
 - id: "12298974297"
   name: Col de Crozet
+  desc: A nice Col de Crozet loop from Geneva.
   d: 4
   s: 5
   e: 4
-
-- id : "4572671690"
+- id: "14572671690"
   name: Voirons Ultime
+  desc: Gravel on the Voirons. Don't deviate unless you enjoy pushing your bike — downhill.
   d: 4
   s: 5
   e: 4
-
 - id: "9127242762"
   name: Gravelus Salevensis
+  desc: An unusual gravel ride on the Salève, from the south. Some report having pushed their bike above the Sappey; others set a KOM. Legends.
   d: 3
   s: 4
   e: 3
-
 - id: "9314310309"
-  name: Scaletta Pass 
+  name: Scaletta Pass
+  desc: Better without snow — but snow adds character to an already gnarly alpine gravel ride.
   d: 5
   s: 5
   e: 4
-
 - id: "9334015657"
-  name: Val da Camp - Valle di Fraele 
+  name: Val da Camp - Valle di Fraele
+  desc: Pure alpine gravel adventure.
   d: 5
   s: 5
   e: 5
-
-
 - id: "15310256830"
-  name: Aigle Genève 
+  name: Aigle Genève
+  desc: Pure gold. A perfect ride.
   d: 5
   s: 5
   e: 4
-
 - id: "9881684764"
-  name: Croix biche classic
+  name: Croix Biche Classic
+  desc: As close to an alpine ride as you can get without the massive elevation.
   d: 2
   s: 3
   e: 2
-
 - id: "11668996716"
-  name: Tour de la cuvette
+  name: Tour de la Cuvette
+  desc: Every Geneva mountain summit in one sitting. See the city from every angle. And suffer.
   d: 5
   s: 5
   e: 5
-
-
-- id: "9551253185" 
-  name : Genève - Lausanne
+- id: "9551253185"
+  name: Genève - Lausanne
+  desc: The shortest alpine (Jurassic) gravel route from Geneva to Lausanne.
   d: 4
   s: 4
   e: 3
-
 - id: "17603551464"
-  name : Credoz + arve 
+  name: Credoz + Arve
+  desc: My favourite after-work ride.
   d: 2
   e: 2
   s: 3
-
-
-- id: "5354777542"
+- id: "15354777542"
   name: Genève Lyon VTT
+  desc: '"Asphalt is Lava" between Geneva and Lyon. You are not ready.'
   d: 5
   e: 5
   s: 3
-
 - id: "9988459723"
-  name: Genève Saint-Imier 
+  name: Genève Saint-Imier
+  desc: A super fast Jura crest ride to my hometown.
   d: 4
-  e: 5 
-  s: 4 
-
+  e: 5
+  s: 4
 - id: "9420290442"
-  name : "Martigny Genève" 
+  name: Martigny Genève
+  desc: Alpine gravel — only attempt after August.
   d: 5
   e: 4
   s: 5
-
 - id: "7599195604"
   name: Berne Montreux
+  desc: Fast track to the best section of the Panorama Bike route.
   d: 3
   e: 5
   s: 5
-
 - id: "3888943962"
-  name: "Lac de Joux"
+  name: Lac de Joux
+  desc: A great escape during COVID. Might be too busy now.
   d: 1
-  e: 5 
+  e: 5
   s: 4
