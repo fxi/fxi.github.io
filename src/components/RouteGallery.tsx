@@ -629,6 +629,128 @@ function RouteEntry({
   );
 }
 
+// ── Zoom-aware clustering helpers ─────────────────────────────────────────────
+
+function thresholdForZoom(zoom: number): number {
+  // zoom 8 → 40 000 m, zoom 12 → 5 000 m (exponent 0.75 fits both anchors)
+  return Math.max(80, 20000 * Math.pow(2, (8 - zoom) * 0.75));
+}
+
+type MarkersMap = Map<string, { startEl: HTMLElement; labelEl: HTMLElement; endEl: HTMLElement; summaryEl: HTMLButtonElement }>;
+type DotsMap    = Map<string, { startEl: HTMLElement; endEl: HTMLElement; startMarker: any; endMarker: any }>;
+
+function applyActiveState(
+  markersRef: React.RefObject<MarkersMap>,
+  activeIds: Set<string>,
+  tracks: Track[],
+): void {
+  const summaryActiveName = new Map<HTMLButtonElement, string>();
+  markersRef.current.forEach(({ startEl, labelEl, endEl, summaryEl }, id) => {
+    const on = activeIds.has(id);
+    startEl.classList.toggle("route-marker-dot--active", on);
+    labelEl.classList.toggle("route-marker-label--active", on);
+    endEl.classList.toggle("route-marker-dot--active", on);
+    if (on && summaryEl !== (labelEl as unknown as HTMLButtonElement)) {
+      summaryActiveName.set(summaryEl, tracks.find((t) => t.id === id)?.name ?? "");
+    }
+  });
+  const allSummaries = new Set<HTMLButtonElement>();
+  markersRef.current.forEach(({ summaryEl, labelEl }) => {
+    if (summaryEl !== (labelEl as unknown as HTMLButtonElement)) allSummaries.add(summaryEl);
+  });
+  allSummaries.forEach((summaryEl) => {
+    const activeName = summaryActiveName.get(summaryEl);
+    if (activeName) {
+      summaryEl.textContent = activeName;
+      summaryEl.closest(".route-marker-stack")?.classList.remove("route-marker-stack--open");
+    } else {
+      summaryEl.textContent = summaryEl.dataset.default ?? "";
+    }
+  });
+}
+
+function buildClusterMarkers(
+  map: any,
+  mgl: any,
+  zoom: number,
+  tracks: Track[],
+  dotMarkersRef: React.RefObject<DotsMap>,
+  clusterMarkersRef: React.MutableRefObject<any[]>,
+  markersRef: React.RefObject<MarkersMap>,
+  activeIdsRef: React.RefObject<Set<string>>,
+  onToggleTrack: (id: string) => void,
+): void {
+  // Remove old cluster markers
+  clusterMarkersRef.current.forEach((m) => m.remove());
+  clusterMarkersRef.current = [];
+  markersRef.current.clear();
+
+  const clusters = clusterByFirstPoint(tracks, thresholdForZoom(zoom));
+
+  for (const { centroid, tracks: group } of clusters) {
+    if (group.length === 1) {
+      const track = group[0];
+      const dots = dotMarkersRef.current.get(track.id);
+      if (!dots) continue;
+      const labelEl = document.createElement("button");
+      labelEl.className = "route-marker-label";
+      labelEl.textContent = track.name;
+      labelEl.onclick = () => onToggleTrack(track.id);
+      const marker = new mgl.Marker({ element: labelEl, anchor: "bottom" })
+        .setLngLat(centroid)
+        .addTo(map);
+      clusterMarkersRef.current.push(marker);
+      markersRef.current.set(track.id, {
+        startEl: dots.startEl,
+        labelEl,
+        endEl: dots.endEl,
+        summaryEl: labelEl as unknown as HTMLButtonElement,
+      });
+      continue;
+    }
+
+    // Multi: pancake stack widget
+    const stackEl = document.createElement("div");
+    stackEl.className = "route-marker-stack";
+    const deckEl = document.createElement("div");
+    deckEl.className = "route-marker-stack__deck";
+    const defaultLabel = `${group.length} routes`;
+    const summaryEl = document.createElement("button");
+    summaryEl.className = "route-marker-stack__summary";
+    summaryEl.textContent = defaultLabel;
+    summaryEl.dataset.default = defaultLabel;
+    summaryEl.onclick = (e) => {
+      e.stopPropagation();
+      stackEl.classList.toggle("route-marker-stack--open");
+    };
+    deckEl.appendChild(summaryEl);
+    stackEl.appendChild(deckEl);
+    const listEl = document.createElement("div");
+    listEl.className = "route-marker-stack__list";
+    for (const track of group) {
+      const dots = dotMarkersRef.current.get(track.id);
+      if (!dots) continue;
+      const labelEl = document.createElement("button");
+      labelEl.className = "route-marker-label";
+      labelEl.textContent = track.name;
+      labelEl.onclick = (e) => {
+        e.stopPropagation();
+        onToggleTrack(track.id);
+        stackEl.classList.remove("route-marker-stack--open");
+      };
+      listEl.appendChild(labelEl);
+      markersRef.current.set(track.id, { startEl: dots.startEl, labelEl, endEl: dots.endEl, summaryEl });
+    }
+    stackEl.appendChild(listEl);
+    const marker = new mgl.Marker({ element: stackEl, anchor: "bottom" })
+      .setLngLat(centroid)
+      .addTo(map);
+    clusterMarkersRef.current.push(marker);
+  }
+
+  applyActiveState(markersRef, activeIdsRef.current, tracks);
+}
+
 // ── RouteMap ──────────────────────────────────────────────────────────────────
 
 function RouteMap({
@@ -649,18 +771,18 @@ function RouteMap({
   const loadedRef = useRef(new Set<string>());
   const pendingRef = useRef(new Set<string>());
   const hoverMarkerRef = useRef<any>(null);
-  const markersRef = useRef<Map<string, {
-    startEl: HTMLElement;
-    labelEl: HTMLElement;
-    endEl: HTMLElement;
-    summaryEl: HTMLButtonElement;
-  }>>(new Map());
+  const markersRef = useRef<MarkersMap>(new Map());
+  const dotMarkersRef = useRef<DotsMap>(new Map());
+  const clusterMarkersRef = useRef<any[]>([]);
+  const tracksRef = useRef(tracks);
+  const zoomEndHandlerRef = useRef<(() => void) | null>(null);
 
   const [loadedCoords, setLoadedCoords] = useState<Map<string, [number, number][]>>(new Map());
   const [hoverProgress, setHoverProgress] = useState<number | null>(null);
   const [loadingCount, setLoadingCount] = useState(0);
 
   activeIdsRef.current = activeIds;
+  tracksRef.current = tracks;
 
   const addTrackToMap = useCallback(
     async (map: any, track: Track) => {
@@ -782,8 +904,8 @@ function RouteMap({
 
       const mgl = (window as any).maplibregl;
 
-      // Pass 1: per-track start/end dots
-      const tempDots = new Map<string, { startEl: HTMLElement; endEl: HTMLElement }>();
+      // Pass 1: per-track start/end dots (static — not re-created on zoom)
+      dotMarkersRef.current.clear();
       for (const track of tracks) {
         if (!track.first_point) continue;
 
@@ -791,7 +913,7 @@ function RouteMap({
         startEl.className = "route-marker-dot";
         startEl.setAttribute("aria-label", `Start of ${track.name}`);
         startEl.onclick = () => onToggleTrack(track.id);
-        new mgl.Marker({ element: startEl, anchor: "center" })
+        const startMarker = new mgl.Marker({ element: startEl, anchor: "center" })
           .setLngLat(track.first_point)
           .addTo(map);
 
@@ -799,72 +921,27 @@ function RouteMap({
         endEl.className = "route-marker-dot";
         endEl.setAttribute("aria-label", `End of ${track.name}`);
         endEl.onclick = () => onToggleTrack(track.id);
-        new mgl.Marker({ element: endEl, anchor: "center" })
+        const endMarker = new mgl.Marker({ element: endEl, anchor: "center" })
           .setLngLat(track.last_point ?? track.first_point)
           .addTo(map);
 
-        tempDots.set(track.id, { startEl, endEl });
+        dotMarkersRef.current.set(track.id, { startEl, endEl, startMarker, endMarker });
       }
 
-      // Pass 2: clustered trailhead labels
-      const clusters = clusterByFirstPoint(tracks);
-      for (const { centroid, tracks: group } of clusters) {
-        if (group.length === 1) {
-          // Solo: plain label
-          const track = group[0];
-          const { startEl, endEl } = tempDots.get(track.id)!;
-          const labelEl = document.createElement("button");
-          labelEl.className = "route-marker-label";
-          labelEl.textContent = track.name;
-          labelEl.onclick = () => onToggleTrack(track.id);
-          new mgl.Marker({ element: labelEl, anchor: "bottom" })
-            .setLngLat(centroid)
-            .addTo(map);
-          markersRef.current.set(track.id, { startEl, labelEl, endEl, summaryEl: labelEl as unknown as HTMLButtonElement });
-          continue;
-        }
+      // Pass 2: zoom-aware clustered trailhead labels
+      buildClusterMarkers(
+        map, mgl, map.getZoom(), tracksRef.current,
+        dotMarkersRef, clusterMarkersRef, markersRef, activeIdsRef, onToggleTrack,
+      );
 
-        // Multi: pancake stack widget
-        const stackEl = document.createElement("div");
-        stackEl.className = "route-marker-stack";
-
-        const deckEl = document.createElement("div");
-        deckEl.className = "route-marker-stack__deck";
-
-        const defaultLabel = `${group.length} routes`;
-        const summaryEl = document.createElement("button");
-        summaryEl.className = "route-marker-stack__summary";
-        summaryEl.textContent = defaultLabel;
-        summaryEl.dataset.default = defaultLabel;
-        summaryEl.onclick = (e) => {
-          e.stopPropagation();
-          stackEl.classList.toggle("route-marker-stack--open");
-        };
-        deckEl.appendChild(summaryEl);
-        stackEl.appendChild(deckEl);
-
-        const listEl = document.createElement("div");
-        listEl.className = "route-marker-stack__list";
-
-        for (const track of group) {
-          const { startEl, endEl } = tempDots.get(track.id)!;
-          const labelEl = document.createElement("button");
-          labelEl.className = "route-marker-label";
-          labelEl.textContent = track.name;
-          labelEl.onclick = (e) => {
-            e.stopPropagation();
-            onToggleTrack(track.id);
-            stackEl.classList.remove("route-marker-stack--open");
-          };
-          listEl.appendChild(labelEl);
-          markersRef.current.set(track.id, { startEl, labelEl, endEl, summaryEl });
-        }
-
-        stackEl.appendChild(listEl);
-        new mgl.Marker({ element: stackEl, anchor: "bottom" })
-          .setLngLat(centroid)
-          .addTo(map);
-      }
+      const onZoomEnd = () => {
+        buildClusterMarkers(
+          map, mgl, map.getZoom(), tracksRef.current,
+          dotMarkersRef, clusterMarkersRef, markersRef, activeIdsRef, onToggleTrack,
+        );
+      };
+      zoomEndHandlerRef.current = onZoomEnd;
+      map.on("zoomend", onZoomEnd);
     });
 
     }; // end initMap
@@ -880,13 +957,19 @@ function RouteMap({
 
     return () => {
       cancelled = true;
+      if (zoomEndHandlerRef.current) {
+        mapInstanceRef.current?.off("zoomend", zoomEndHandlerRef.current);
+        zoomEndHandlerRef.current = null;
+      }
       hoverMarkerRef.current?.remove();
       hoverMarkerRef.current = null;
-      markersRef.current.forEach(({ startEl, labelEl, endEl }) => {
-        startEl.closest(".maplibregl-marker")?.remove();
-        labelEl.closest(".maplibregl-marker")?.remove();
-        endEl.closest(".maplibregl-marker")?.remove();
+      clusterMarkersRef.current.forEach((m) => m.remove());
+      clusterMarkersRef.current = [];
+      dotMarkersRef.current.forEach(({ startMarker, endMarker }) => {
+        startMarker.remove();
+        endMarker.remove();
       });
+      dotMarkersRef.current.clear();
       markersRef.current.clear();
       mapInstanceRef.current?.remove();
       mapInstanceRef.current = null;
@@ -935,33 +1018,7 @@ function RouteMap({
   }, [activeIds, hoverProgress]);
 
   useEffect(() => {
-    const summaryActiveName = new Map<HTMLButtonElement, string>();
-
-    markersRef.current.forEach(({ startEl, labelEl, endEl, summaryEl }, id) => {
-      const on = activeIds.has(id);
-      startEl.classList.toggle("route-marker-dot--active", on);
-      labelEl.classList.toggle("route-marker-label--active", on);
-      endEl.classList.toggle("route-marker-dot--active", on);
-
-      if (on && summaryEl !== (labelEl as unknown as HTMLButtonElement)) {
-        summaryActiveName.set(summaryEl, tracks.find((t) => t.id === id)?.name ?? "");
-      }
-    });
-
-    const allSummaries = new Set<HTMLButtonElement>();
-    markersRef.current.forEach(({ summaryEl, labelEl }) => {
-      if (summaryEl !== (labelEl as unknown as HTMLButtonElement)) allSummaries.add(summaryEl);
-    });
-
-    allSummaries.forEach((summaryEl) => {
-      const activeName = summaryActiveName.get(summaryEl);
-      if (activeName) {
-        summaryEl.textContent = activeName;
-        summaryEl.closest(".route-marker-stack")?.classList.remove("route-marker-stack--open");
-      } else {
-        summaryEl.textContent = summaryEl.dataset.default ?? "";
-      }
-    });
+    applyActiveState(markersRef, activeIds, tracks);
   }, [activeIds, tracks]);
 
   const singleActive = activeIds.size === 1 ? tracks.find((t) => activeIds.has(t.id)) : null;
