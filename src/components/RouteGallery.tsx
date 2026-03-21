@@ -480,70 +480,26 @@ function RouteSummaryPanel({
 
 // ── PhotoStrip ────────────────────────────────────────────────────────────────
 
-function PhotoStrip({ photos }: { photos: string[] }) {
-  const [idx, setIdx] = useState(0);
+function PhotoMosaic({ photos }: { photos: string[] }) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const stripRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const strip = stripRef.current;
-    if (!strip || photos.length <= 1) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const i = Array.from(strip.children).indexOf(entry.target as HTMLElement);
-            if (i >= 0) setIdx(i);
-          }
-        }
-      },
-      { root: strip, threshold: 0.6 },
-    );
-    Array.from(strip.children).forEach((c) => observer.observe(c));
-    return () => observer.disconnect();
-  }, [photos.length]);
-
-  const scrollTo = (i: number) => {
-    const child = stripRef.current?.children[i] as HTMLElement;
-    child?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-  };
-
-  if (photos.length === 0) return null;
-
+  const count = Math.min(photos.length, 5);
+  if (count === 0) return null;
   return (
     <div
-      className="route-photo-wrap"
+      className={`photo-mosaic photo-mosaic--${count}`}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <div ref={stripRef} className="route-photo-strip">
-        {photos.map((url, i) => (
-          <img
-            key={i}
-            src={url}
-            alt=""
-            className="route-photo-img"
-            loading="lazy"
-            onClick={() => setLightboxIdx(i)}
-            style={{ cursor: "zoom-in" }}
-          />
-        ))}
-      </div>
-      {photos.length > 1 && (
-        <div className="route-photo-dots">
-          {photos.length <= 5
-            ? photos.map((_, i) => (
-                <button
-                  key={i}
-                  className={`route-photo-dot${i === idx ? " route-photo-dot--on" : ""}`}
-                  onClick={() => scrollTo(i)}
-                  aria-label={`Photo ${i + 1}`}
-                />
-              ))
-            : null}
-          <span className="route-photo-count">{idx + 1} / {photos.length}</span>
-        </div>
-      )}
+      {photos.slice(0, count).map((url, i) => (
+        <button
+          key={i}
+          className={`photo-mosaic__cell photo-mosaic__cell--${i}`}
+          onClick={() => setLightboxIdx(i)}
+          aria-label={`View photo ${i + 1}`}
+        >
+          <img src={url} alt="" loading="lazy" />
+        </button>
+      ))}
       {lightboxIdx !== null && (
         <RouteLightbox
           photos={photos}
@@ -561,10 +517,12 @@ function RouteEntry({
   track,
   isActive,
   onShowOnMap,
+  onClose,
 }: {
   track: Track;
   isActive: boolean;
   onShowOnMap: () => void;
+  onClose: () => void;
 }) {
   const time = fmtTime(track.moving_time_s);
   const date = fmtDate(track.date);
@@ -578,6 +536,15 @@ function RouteEntry({
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onShowOnMap(); }}
     >
+      {isActive && (
+        <button
+          className="route-btn route-entry-close"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          title="Close"
+        >
+          <X size={14} aria-hidden />
+        </button>
+      )}
       <div className="route-entry-header">
         <h2 className="route-entry-title">{track.name}</h2>
         <p className="route-entry-meta">
@@ -591,7 +558,7 @@ function RouteEntry({
       </div>
       {track.description && <RouteDescription text={track.description} />}
       <div className="route-photo-container">
-        <PhotoStrip photos={track.photos} />
+        <PhotoMosaic photos={track.photos} />
         <ElevationSparkline elevation={track.elevation} />
       </div>
       <div
@@ -1134,12 +1101,13 @@ export default function RouteGallery({ tracks }: { tracks: Track[] }) {
           )}
         </div>
         <div className="route-journal-list">
-          {filteredTracks.map((track) => (
+          {(activeIds.size > 0 ? filteredTracks.filter((t) => activeIds.has(t.id)) : filteredTracks).map((track) => (
             <RouteEntry
               key={track.id}
               track={track}
               isActive={activeIds.has(track.id)}
               onShowOnMap={() => showOnMap(track.id)}
+              onClose={() => { setActiveIds(new Set()); setMobileView("list"); }}
             />
           ))}
         </div>

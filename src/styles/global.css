@@ -1198,10 +1198,21 @@ body.home {
 
 /* Journal entry */
 .route-entry {
+  position: relative;
   padding: 2rem 2.5rem 1.5rem;
   border-bottom: 1px solid var(--fg-dim);
   outline: none;
   cursor: pointer;
+}
+
+.route-entry-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  opacity: 0.5;
+}
+.route-entry-close:hover {
+  opacity: 1;
 }
 
 .route-entry:focus-visible {
@@ -1250,79 +1261,70 @@ body.home {
   letter-spacing: 0;
 }
 
-/* Square photo + elevation overlay */
+/* Photo + elevation overlay */
 .route-photo-container {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 4px;
   margin-bottom: 0.5rem;
 }
 
-/* Photo strip */
-.route-photo-wrap {
-  position: absolute;
-  inset: 0;
-  margin-bottom: 0;
-  border-radius: 0;
-  overflow: hidden;
-}
-
-.route-photo-strip {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
+/* Photo mosaic */
+.photo-mosaic {
+  display: grid;
   gap: 2px;
+  width: 100%;
   height: 100%;
 }
-.route-photo-strip::-webkit-scrollbar {
-  display: none;
+
+.photo-mosaic--1 {
+  grid-template-areas: "a";
+  grid-template-columns: 1fr;
+}
+.photo-mosaic--2 {
+  grid-template-areas: "a b";
+  grid-template-columns: 2fr 1fr;
+}
+.photo-mosaic--3 {
+  grid-template-areas: "a b" "a c";
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.photo-mosaic--4 {
+  grid-template-areas: "a b" "a c" "a d";
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+.photo-mosaic--5 {
+  grid-template-areas: "a b c" "a d e";
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
-.route-photo-img {
-  flex: 0 0 100%;
+.photo-mosaic__cell {
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: none;
+  display: block;
+}
+.photo-mosaic__cell--0 { grid-area: a; }
+.photo-mosaic__cell--1 { grid-area: b; }
+.photo-mosaic__cell--2 { grid-area: c; }
+.photo-mosaic__cell--3 { grid-area: d; }
+.photo-mosaic__cell--4 { grid-area: e; }
+
+.photo-mosaic__cell img {
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  scroll-snap-align: start;
+  cursor: zoom-in;
+  display: block;
+  transition: transform 0.2s ease;
 }
-
-.route-photo-strip:has(> :nth-child(2)) .route-photo-img {
-  flex: 0 0 calc(88% - 1px);
-}
-
-.route-photo-dots {
-  position: absolute;
-  bottom: 58px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-}
-
-.route-photo-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.route-photo-dot--on {
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.route-photo-count {
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1;
-  align-self: center;
-  font-variant-numeric: tabular-nums;
+.photo-mosaic__cell:hover img {
+  transform: scale(1.04);
 }
 
 /* Elevation chart */
