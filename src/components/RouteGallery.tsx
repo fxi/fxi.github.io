@@ -754,11 +754,16 @@ function RouteMap({
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const maplibregl = (window as any).maplibregl;
-    if (!maplibregl) {
-      console.error("RouteMap: maplibregl not loaded");
-      return;
-    }
+    let cancelled = false;
+
+    const initMap = () => {
+      if (cancelled || !mapRef.current) return;
+
+      const maplibregl = (window as any).maplibregl;
+      if (!maplibregl) {
+        console.error("RouteMap: maplibregl not loaded");
+        return;
+      }
 
     const overallBbox = calcOverallBbox(tracks);
     const map = new maplibregl.Map({
@@ -862,7 +867,19 @@ function RouteMap({
       }
     });
 
+    }; // end initMap
+
+    if ((window as any).maplibregl) {
+      initMap();
+    } else {
+      const script = document.querySelector('script[src*="maplibre-gl"]') as HTMLScriptElement | null;
+      if (script) {
+        script.addEventListener("load", initMap, { once: true });
+      }
+    }
+
     return () => {
+      cancelled = true;
       hoverMarkerRef.current?.remove();
       hoverMarkerRef.current = null;
       markersRef.current.forEach(({ startEl, labelEl, endEl }) => {
@@ -871,7 +888,7 @@ function RouteMap({
         endEl.closest(".maplibregl-marker")?.remove();
       });
       markersRef.current.clear();
-      map.remove();
+      mapInstanceRef.current?.remove();
       mapInstanceRef.current = null;
       mapLoadedRef.current = false;
       loadedRef.current.clear();
